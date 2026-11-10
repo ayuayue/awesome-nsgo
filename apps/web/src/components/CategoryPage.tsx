@@ -1,10 +1,10 @@
-import type { SubmitCat } from '@awesome-nsgo/catalog';
+import type { SubmitCat, Surface } from '@awesome-nsgo/catalog';
 import { useT } from '../lib/lang';
 import { type CopyKey, useSite } from '../lib/site';
-import { Docky } from './bits';
 import { SetupLine } from './CopyCmd';
 import { CtaBox, CtaHead } from './Cta';
 import { BarLink, CardHead, CardShot, EntryCard, TagList, cardShotImg, showBy, showDesc, showGrid } from './EntryCard';
+import { EmptyLanes } from './marks';
 
 // One card of a category page that lists projects by their repository with a command to copy: a template and how to start from it, an AI tool and how to install it.
 export interface CategoryItem {
@@ -24,11 +24,14 @@ export interface CategoryItem {
 	image?: string;
 	// What kind it is, in the visitor's language (a template's surface, an AI tool's type), shown before its tags.
 	kind: string;
+	// A template's surface (go, tsx or both): with it the kind is drawn as the language tag the plugins and UI pages draw; an AI tool's type has none and stays a neutral outlined badge.
+	surface?: Surface;
 	tags: readonly string[];
 }
 
 // The words of a category page, in the visitor's language.
 export interface CategoryCopy {
+	// The category's name as the navigation says it. Neither look shows it at present: the original look's eyebrow is the count or the "wanted" badge.
 	kicker: string;
 	name: string;
 	// One line on what the category holds, as the home page's tile says it.
@@ -43,8 +46,6 @@ export interface CategoryCopy {
 	submit: string;
 }
 
-const btnAmber = 'min-h-12 py-0 px-[22px] border-0 rounded-xl bg-amber text-bg font-bold text-[15px]';
-
 // How a card's command line is cut: the head gives way to an ellipsis, the tail always shows. As on a plugin card the tail is what follows the last slash, the project's name and what comes after it; when that runs past what a card holds (a skill of a collection: npx skills add owner/skills --skill nsgo-usage), only the last word.
 const TAIL_MAX = 22;
 export function cmdTail(cmd: string): number {
@@ -53,17 +54,16 @@ export function cmdTail(cmd: string): number {
 	return cmd.lastIndexOf(' ') + 1;
 }
 
-// A category page in the original look, as the state page lays out its solutions: a heading, the listed cards, and an invitation to submit, which takes the place of the list while the category is empty.
+// A category page in the original look, as the state page lays out its solutions: a heading under an eyebrow with the count (or, while the category is empty, the "wanted" badge in its warm tone), the listed cards, and an invitation to submit, which takes the place of the list while the category is empty.
 export function CategoryPage({ cat, copy, items }: { cat: SubmitCat; copy: CategoryCopy; items: readonly CategoryItem[] }) {
 	const t = useT();
 	const { openSubmit } = useSite();
 	const listed = items.length > 0;
 	return (
 		<section className='page enter gap-10 max-sm:gap-6'>
-			<div className='flex flex-col gap-3.5'>
-				<span className='kicker inline-flex items-center gap-2.5 text-amber'>
-					<span className={`size-2 rounded-full bg-amber ${listed ? '' : 'pulse'}`} />
-					{copy.kicker} · {listed ? copy.count : copy.badge}
+			<div className='flex flex-col gap-3'>
+				<span className='kicker' data-tone={listed ? undefined : 'dev'}>
+					{listed ? copy.count : copy.badge}
 				</span>
 				<h1 className='page-h1'>{copy.name}</h1>
 				{/* As on the state page, the lead paragraph is left out on a phone, where the cards already say what the page holds. */}
@@ -72,7 +72,7 @@ export function CategoryPage({ cat, copy, items }: { cat: SubmitCat; copy: Categ
 
 			{listed && (
 				<div className='flex flex-col gap-4'>
-					<h2 className='m-0 text-[26px] font-black'>{copy.listed}</h2>
+					<h2 className='m-0 text-[22px] font-bold tracking-[-0.02em]'>{copy.listed}</h2>
 					<div className={showGrid}>
 						{items.map((x, k) => {
 							const cut = cmdTail(x.cmd);
@@ -99,7 +99,7 @@ export function CategoryPage({ cat, copy, items }: { cat: SubmitCat; copy: Categ
 										<p className={showDesc}>{x.desc}</p>
 										<SetupLine head={x.cmd.slice(0, cut)} tail={x.cmd.slice(cut)} copyKey={x.copyKey} />
 										<span className='flex flex-wrap items-center gap-1.5'>
-											<span className='rounded-md border border-amber/60 px-[9px] py-[2px] text-[12px] font-bold text-amber'>{x.kind}</span>
+											{x.surface ? <span className={`kind-tag kind-${x.surface} self-center`}>{x.kind}</span> : <span className='inline-flex h-6 items-center rounded-full border border-line-2 px-2.5 text-[12px] font-semibold text-fg-2'>{x.kind}</span>}
 											<TagList tags={x.tags} />
 										</span>
 									</EntryCard>
@@ -111,18 +111,18 @@ export function CategoryPage({ cat, copy, items }: { cat: SubmitCat; copy: Categ
 			)}
 
 			{listed ? (
-				<CtaBox amber>
+				<CtaBox>
 					<CtaHead as='h3' title={copy.more} text={copy.emptyP} />
-					<button type='button' className={btnAmber} onClick={() => openSubmit(cat)}>
+					<button type='button' className='btn-c btn-44' onClick={() => openSubmit(cat)}>
 						{copy.submit}
 					</button>
 				</CtaBox>
 			) : (
-				<div className='bg-[radial-gradient(rgba(255,255,255,0.07)_1px,transparent_1px)] bg-size-[22px_22px] rv flex flex-col items-center gap-4 rounded-[20px] border border-dashed border-amber bg-bg/60 px-7 py-14 text-center max-sm:px-5 max-sm:py-10'>
-					<Docky variant='laptop' />
-					<h2 className='m-0 text-[28px] font-black tracking-[-0.02em] max-sm:text-[24px]'>{copy.emptyH}</h2>
-					<p className='m-0 text-[15px] leading-[1.75] text-fg-2'>{copy.emptyP}</p>
-					<button type='button' className={btnAmber} onClick={() => openSubmit(cat)}>
+				<div className='rv dots flex flex-col items-center gap-4 rounded-band border border-line bg-soft px-7 py-14 text-center max-sm:px-5 max-sm:py-10'>
+					<EmptyLanes />
+					<h2 className='m-0 text-[24px] font-bold tracking-[-0.02em]'>{copy.emptyH}</h2>
+					<p className='m-0 max-w-[36em] text-[15px] leading-[1.75] text-fg-2'>{copy.emptyP}</p>
+					<button type='button' className='btn-c btn-44' onClick={() => openSubmit(cat)}>
 						{copy.submit}
 					</button>
 				</div>

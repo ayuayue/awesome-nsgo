@@ -2,7 +2,7 @@ import { type ReactNode, useEffect, useRef } from 'react';
 
 // The filter bar over a listing (the showcase, the UI libraries and the plugins): a row of chips and the selects beside them. From md up it is a panel that sticks under the header while the list scrolls. Below md it is neither a panel nor sticky, as a sticky bar of wrapped chips covered the cards on a phone: the chips become one row that scrolls sideways, out to the screen's edges, and the selects share the row under it. A screen under 560px tall (a phone held sideways, which is md wide) keeps the panel but does not stick it, as header and panel would leave a strip of the list.
 export function FilterBar({ children }: { children: ReactNode }) {
-	return <div className='sticky top-[72px] z-5 flex [@media(max-height:560px)]:static flex-wrap items-center justify-start gap-3 rounded-[14px] border border-line bg-well/90 p-3 backdrop-blur-[10px] max-md:static max-md:flex-col max-md:flex-nowrap max-md:items-stretch max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:p-0 max-md:backdrop-blur-none'>{children}</div>;
+	return <div className='sticky top-[72px] z-5 flex [@media(max-height:560px)]:static flex-wrap items-center justify-start gap-3 rounded-card border border-line-2 bg-panel/86 p-2.5 backdrop-blur-[16px] [box-shadow:var(--sh-1)] max-md:static max-md:flex-col max-md:flex-nowrap max-md:items-stretch max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:p-0 max-md:[box-shadow:none] max-md:backdrop-blur-none'>{children}</div>;
 }
 
 // The chips' row. Below md it runs past the page's gutter (16px below sm, 24px up to md) to the screen's edges, with the gutter as its padding and scroll padding, so the first chip lines up with the page and the row scrolls under the edge; the scroll bar is hidden, and a few pixels above and below keep a focused chip's outline from being clipped.
@@ -32,20 +32,20 @@ export function FilterChips({ label, children }: { label: string; children: Reac
 	);
 }
 
-// Below md a chip that is not pressed takes the panel's fill, which the bar no longer draws there, so it does not fade into the hero behind it. A chip given a count is a compact one, for a long list that should stay on one row from md up: its name is a short one, with the full name as its tooltip and accessible name, and the count follows in small muted figures from 1280px up, and below md, where the row scrolls.
+// A chip draws its own fill and border, so below md, where the bar draws no panel, it stays legible over the page's dot field; a pressed chip turns to the blue tint. A chip given a count is a compact one, for a long list that should stay on one row from md up: its name is a short one, with the full name as its tooltip and accessible name, and the count follows in small muted figures from 1280px up, and below md, where the row scrolls.
 export function FilterChip({ pressed, onClick, count, title, children }: { pressed: boolean; onClick: () => void; count?: number; title?: string; children: ReactNode }) {
 	const compact = count !== undefined;
 	return (
 		<button
 			type='button'
-			className={`min-h-10 shrink-0 rounded-full border border-line-3 bg-transparent py-0 text-[14px] font-semibold whitespace-nowrap text-fg-2 transition-[border-color,background] duration-150 ease-[ease] hover:border-fg aria-pressed:border-cyan aria-pressed:bg-cyan aria-pressed:text-bg max-md:not-aria-pressed:bg-well/90 ${compact ? 'px-[18px] md:px-3 md:text-[13px] md:max-split:px-2.5' : 'px-[18px]'}`}
+			className={`group min-h-9 shrink-0 rounded-full border border-line-2 bg-panel py-0 text-[14px] font-medium whitespace-nowrap text-fg-2 transition-[border-color,background,color] duration-150 ease-[ease] hover:border-line-3 hover:text-fg aria-pressed:border-blue aria-pressed:bg-blue-soft aria-pressed:font-semibold aria-pressed:text-blue-ink max-md:min-h-10 ${compact ? 'px-[18px] md:px-3 md:text-[13px] md:max-split:px-2.5' : 'px-[18px]'}`}
 			onClick={onClick}
 			aria-pressed={pressed}
 			title={title}
 			aria-label={compact && title ? `${title} · ${count}` : undefined}
 		>
 			{children}
-			{compact && <span className='ml-1.5 text-[12px] tabular-nums opacity-60 md:max-xl:hidden'>{count}</span>}
+			{compact && <span className='ml-1.5 text-[12px] text-fg-3 tabular-nums group-aria-pressed:text-blue-ink md:max-xl:hidden'>{count}</span>}
 		</button>
 	);
 }
@@ -59,11 +59,11 @@ export function FilterSelects({ grouped = false, children }: { grouped?: boolean
 export function FilterSelect({ id, label, value, onChange, children }: { id: string; label: string; value: string; onChange: (value: string) => void; children: ReactNode }) {
 	return (
 		<div className='flex items-center gap-2.5 max-md:min-w-0 max-md:max-w-[calc(50%-6px)] max-md:flex-1 max-md:flex-col max-md:items-stretch max-md:gap-1.5'>
-			<label htmlFor={id} className='text-[14px] text-fg-2'>
+			<label htmlFor={id} className='text-[13.5px] font-medium text-fg-2'>
 				{label}
 			</label>
 			{/* sort-select sets the inherited font and draws the chevron (styles/primitives.css). */}
-			<select id={id} value={value} onChange={(e) => onChange(e.target.value)} className='sort-select h-10 cursor-pointer appearance-none rounded-[10px] border border-line-3 bg-panel py-0 pr-[34px] pl-3 text-[14px] text-fg hover:border-fg-3 max-md:min-w-0 max-md:text-[16px]'>
+			<select id={id} value={value} onChange={(e) => onChange(e.target.value)} className='sort-select h-10 cursor-pointer appearance-none rounded-box border border-field bg-panel py-0 pr-[34px] pl-3 text-[14px] text-fg hover:border-fg-3 max-md:h-11 max-md:min-w-0 max-md:text-[16px]'>
 				{children}
 			</select>
 		</div>

@@ -3,7 +3,7 @@ import type { MetaDescriptor } from '@tanstack/react-router';
 import type { JSX } from 'react';
 
 export const SITE_NAME = 'Awesome NSGo';
-const OG_IMAGE = `${SITE_URL}/og-image-1200x630.png`;
+const OG_IMAGE = `${SITE_URL}/og-site-1200x630.png`;
 const OG_LOCALE: Record<LangCode, string> = { 'zh-CN': 'zh_CN', 'zh-TW': 'zh_TW', en: 'en_US', ja: 'ja_JP', ko: 'ko_KR' };
 // The site as every page's JSON-LD names it. Google resolves an @id only within one page, so the other pages embed this node in isPartOf instead of pointing at the home page's. There is no publisher Organization: the owner, yldm-tech, has no site or logo of its own to describe it with, and the Awesome NSGo mark belongs to the site, not to an organization.
 const WEBSITE = { '@type': 'WebSite', '@id': `${SITE_URL}/#website`, name: SITE_NAME, url: `${SITE_URL}/` };
@@ -18,8 +18,8 @@ const PAGE_KEYWORDS: Record<SitePath, StringKey> = { '/': 'kw_home', '/ui': 'kw_
 export type AppPath = `/apps/${string}`;
 export const appPath = (slug: string): AppPath => `/apps/${slug}`;
 
-// An app's share card, a 1200×630 PNG built with the site (apps/web/og).
-export const appCardPath = (slug: string) => `/og/${slug}.png`;
+// An app's share card, a 1200×630 PNG built with the site (apps/web/og). Under /og/v2/ since the redesign changed every card: /og/* is cached for a year (public/_headers), so the cards at the old /og/<slug>.png would have kept their old look; the next change to the cards' look moves them to v3.
+export const appCardPath = (slug: string) => `/og/v2/${slug}.png`;
 
 // The Markdown of the README badge an app's author can add: the badge (/badge.svg, built with the site in apps/web/og) linking to the app's page here. Readers of the project's README find the showcase from it; GitHub marks README links nofollow, so it is a way in for people rather than for search ranking.
 export const appBadgeMarkdown = (slug: string) => `[![Listed on Awesome NSGo](${SITE_URL}/badge.svg)](${SITE_URL}${appPath(slug)})`;

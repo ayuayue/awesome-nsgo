@@ -9,19 +9,21 @@ import { CloseIcon } from './bits';
 const GROUPS = ENTRY_GROUPS;
 
 // The form's repeated pieces. Text fields keep the page's face and, below md, a 16px size, under which iOS zooms the page into a focused field.
-const LABEL = 'text-[14px] font-bold';
-const COUNT = 'font-mono text-[12px] font-normal text-fg-3';
+const LABEL = 'text-[14px] font-semibold';
+const COUNT = 'text-[12px] font-normal tabular-nums text-fg-3';
 const OPTS = 'flex flex-wrap gap-1.5';
-const OPT = 'min-h-10 rounded-[10px] border border-line-3 bg-transparent px-3.5 py-0 text-[14px] font-semibold text-fg-2 aria-checked:border-cyan aria-checked:bg-cyan aria-checked:text-bg';
-const FIELD = 'rounded-[10px] border border-line-3 bg-bg text-fg data-[bad=true]:border-err max-md:text-[16px]';
+// A choice in a radio group, a pill that turns to the blue tint when chosen.
+const OPT = 'min-h-10 rounded-full border border-line-3 bg-panel px-4 py-0 text-[14px] font-medium text-fg-2 hover:text-fg aria-checked:border-blue aria-checked:bg-blue-soft aria-checked:font-semibold aria-checked:text-blue-ink';
+// Form controls take the field border, the one hairline strong enough (3:1) to mark a control's edge.
+const FIELD = 'rounded-box border border-field bg-panel text-fg placeholder:text-fg-3 data-[bad=true]:border-err max-md:text-[16px]';
 const INPUT = `${FIELD} h-[46px] px-3.5 py-0 font-[family-name:inherit] text-[15px]`;
 const AREA = `${FIELD} resize-y px-3.5 py-3`;
 const ERR = '-mt-1.5 mb-0 text-[13px] text-err';
 const TIP = 'm-0 text-[13px] text-fg-3';
 // A bordered secondary button; with .btn-g its hover is restated here, as these utilities outrank .btn-g's hover rule.
-const LINE_BTN = 'btn-g min-h-[46px] rounded-[10px] border border-line-3 bg-transparent px-[18px] py-0 text-[14px] font-bold text-fg hover:not-disabled:border-fg hover:not-disabled:bg-white/4 hover:not-disabled:text-fg disabled:cursor-not-allowed disabled:text-fg-3';
+const LINE_BTN = 'btn-g min-h-[46px] rounded-full border border-line-3 bg-panel px-5 py-0 text-[14px] font-semibold text-fg hover:not-disabled:bg-soft disabled:cursor-not-allowed disabled:text-fg-3';
 // The footer's buttons; below md they share the row under the hint and fill it.
-const FOOT_BTN = 'inline-flex min-h-[46px] items-center rounded-[10px] px-5 py-0 text-[14px] no-underline max-md:flex-auto max-md:justify-center max-md:text-center';
+const FOOT_BTN = 'inline-flex min-h-[46px] items-center rounded-full px-5 py-0 text-[14px] no-underline max-md:flex-auto max-md:justify-center max-md:text-center';
 const HINT = 'm-0 min-w-0 flex-[1_1_200px] text-[13px] leading-[1.5] max-md:basis-full';
 
 // Keyed by the WebMCP fills (lib/webmcp.ts), so each one opens a fresh dialog.
@@ -46,14 +48,14 @@ function Modal() {
 				<div className='flex flex-wrap items-center gap-3'>
 					{shotFile ? (
 						<>
-							<img src={shotFile.preview} alt='' className='h-[72px] w-auto max-w-[128px] rounded-lg border border-line-3 object-cover' />
+							<img src={shotFile.preview} alt='' className='h-[72px] w-auto max-w-[128px] rounded-box border border-line-2 object-cover' />
 							<span className='max-w-[240px] truncate text-[13px] text-fg-2'>{shotFile.file.name}</span>
 							<button type='button' className={LINE_BTN} onClick={() => onShotFile(undefined)}>
 								{t.m_shot_remove}
 							</button>
 						</>
 					) : (
-						<label className={`${LINE_BTN} relative inline-flex cursor-pointer items-center focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-cyan`}>
+						<label className={`${LINE_BTN} relative inline-flex cursor-pointer items-center focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-blue`}>
 							{t.m_shot_up}
 							<input
 								type='file'
@@ -96,7 +98,7 @@ function Modal() {
 				</p>
 			)}
 			{shotNote && (
-				<p className={`${TIP} data-[need=true]:text-amber`} aria-live='polite' data-need={shotRequired && !shotFile && !form.screenshot?.trim()}>
+				<p className={`${TIP} data-[need=true]:text-dev`} aria-live='polite' data-need={shotRequired && !shotFile && !form.screenshot?.trim()}>
 					{shotNote}
 				</p>
 			)}
@@ -108,12 +110,12 @@ function Modal() {
 
 	// The form scrolls inside the dialog; the footer with the submit button stays in view below it, saying what is still missing. Below md the dialog is a full-width sheet from the bottom of the screen, its footer clear of the home indicator.
 	return (
-		<div className='fade fixed inset-0 z-50 flex items-center justify-center bg-[rgba(5,7,9,0.7)] p-4 backdrop-blur-[6px] max-md:items-end max-md:p-0 max-md:pt-[calc(12px+env(safe-area-inset-top))]'>
-			<div ref={ref} role='dialog' aria-modal='true' aria-labelledby='dlg' aria-describedby={agentFilled ? 'sub-agent' : undefined} className='enter box-border flex max-h-[calc(100dvh-32px)] w-full max-w-[580px] flex-col overflow-hidden rounded-[20px] border border-line-3 bg-panel shadow-[0_40px_120px_rgba(0,0,0,0.6)] max-md:max-h-[calc(100dvh-12px-env(safe-area-inset-top))] max-md:max-w-none max-md:rounded-b-none max-md:border-x-0 max-md:border-b-0'>
+		<div className='fade fixed inset-0 z-50 flex items-center justify-center bg-scrim p-4 backdrop-blur-[4px] max-md:items-end max-md:p-0 max-md:pt-[calc(12px+env(safe-area-inset-top))]'>
+			<div ref={ref} role='dialog' aria-modal='true' aria-labelledby='dlg' aria-describedby={agentFilled ? 'sub-agent' : undefined} className='enter box-border flex max-h-[calc(100dvh-32px)] w-full max-w-[580px] flex-col overflow-hidden rounded-band border border-line-2 bg-raised [box-shadow:var(--sh-3)] max-md:max-h-[calc(100dvh-12px-env(safe-area-inset-top))] max-md:max-w-none max-md:rounded-b-none max-md:border-x-0 max-md:border-b-0'>
 				<div className='flex min-h-0 flex-auto flex-col gap-[18px] overflow-auto px-[30px] pt-[30px] pb-[22px] max-md:overscroll-contain max-md:px-6 max-sm:px-4 max-xs:pt-[22px] max-xs:pb-[18px]'>
 					<div className='flex items-start justify-between gap-3'>
 						<div className='flex flex-col gap-1.5'>
-							<h2 id='dlg' className='m-0 text-[26px] font-black tracking-[-0.02em]'>
+							<h2 id='dlg' className='m-0 text-[24px] font-bold tracking-[-0.02em]'>
 								{t.m_title}
 							</h2>
 							<p className='m-0 text-[14px] text-fg-2'>{bot.enabled ? t.m_desc_bot : t.m_desc}</p>
@@ -123,19 +125,19 @@ function Modal() {
 									{t.sub_ai.split('{x}')[0]}
 									<code className='font-mono whitespace-nowrap text-fg-2'>fill-submission</code>
 									{t.sub_ai.split('{x}')[1]}{' '}
-									<a className='whitespace-nowrap text-cyan no-underline hover:text-cyan-2 hover:underline' href={WEBMCP_EXTENSION.url} target='_blank' rel='noopener'>
+									<a className='whitespace-nowrap text-blue-ink no-underline hover:underline' href={WEBMCP_EXTENSION.url} target='_blank' rel='noopener'>
 										{WEBMCP_EXTENSION.name} ↗
 									</a>
 								</p>
 							)}
 						</div>
-						<button type='button' className='btn-g flex size-11 flex-[0_0_44px] items-center justify-center rounded-[10px] border border-line-3 bg-transparent p-0 text-fg hover:border-fg hover:bg-white/4' onClick={closeSubmit} aria-label={t.close}>
+						<button type='button' className='btn-g flex size-10 flex-[0_0_40px] items-center justify-center rounded-full border border-line-2 bg-panel p-0 text-fg hover:bg-soft' onClick={closeSubmit} aria-label={t.close}>
 							<CloseIcon size={18} />
 						</button>
 					</div>
 					{/* Said when a WebMCP tool filled the form in, so the visitor checks what an AI agent wrote before sending it. */}
 					{agentFilled && (
-						<p id='sub-agent' className='m-0 rounded-[10px] border border-amber/45 bg-amber/10 px-3.5 py-2.5 text-[14px] text-amber'>
+						<p id='sub-agent' className='m-0 rounded-box border border-dev/40 bg-dev-soft px-3.5 py-2.5 text-[14px] text-dev'>
 							{t.sub_agent}
 						</p>
 					)}
@@ -191,7 +193,7 @@ function Modal() {
 									{copied === 'line' ? t.copied : t.copy_entry}
 								</button>
 								{bot.enabled && (
-									<span className='m-0 text-left text-[13px] text-fg-3 [&_a]:text-cyan'>
+									<span className='m-0 text-left text-[13px] text-fg-3 [&_a]:text-blue-ink'>
 										{t.sub_gh}{' '}
 										<a href={edit} target='_blank' rel='noopener'>
 											{fill(t.go_edit, { x: file })}
@@ -323,10 +325,10 @@ function Modal() {
 							</div>
 							{/* The entry as it will land in the repository, for those who want to check it or take it to GitHub themselves. */}
 							<details className='group'>
-								<summary className='w-fit cursor-pointer text-[14px] font-bold text-fg-2 group-open:mb-2.5 hover:text-fg max-md:py-2.5'>
+								<summary className='w-fit cursor-pointer text-[14px] font-semibold text-fg-2 group-open:mb-2.5 hover:text-fg max-md:py-2.5'>
 									{t.m_preview} · <span lang='en'>{`${DATA_DIR}/${file}`}</span>
 								</summary>
-								<pre className='m-0 max-h-[260px] overflow-auto rounded-[10px] border border-line-2 bg-bg px-4 py-3.5 font-mono text-[13px] leading-[1.7] wrap-break-word whitespace-pre-wrap text-fg' lang='en'>
+								<pre className='m-0 max-h-[260px] overflow-auto rounded-box border border-line-2 bg-editor px-4 py-3.5 font-mono text-[13px] leading-[1.7] wrap-break-word whitespace-pre-wrap text-fg' lang='en'>
 									{entry}
 								</pre>
 								<div className='mt-2.5 flex flex-wrap items-center gap-x-3.5 gap-y-2.5'>
@@ -334,7 +336,7 @@ function Modal() {
 										{copied === 'line' ? t.copied : t.copy_entry}
 									</button>
 									{bot.enabled && (
-										<span className='m-0 text-left text-[13px] text-fg-3 [&_a]:text-cyan'>
+										<span className='m-0 text-left text-[13px] text-fg-3 [&_a]:text-blue-ink'>
 											{t.sub_gh}{' '}
 											<a href={edit} target='_blank' rel='noopener'>
 												{fill(t.go_edit, { x: file })}
@@ -351,10 +353,10 @@ function Modal() {
 					)}
 					{bot.enabled && status.kind !== 'done' && <Captcha className='empty:hidden' siteKey={bot.siteKey} lang={lang} round={round} onToken={onCheckToken} onFail={onCheckFail} />}
 				</div>
-				<div className='flex flex-none flex-wrap items-center justify-end gap-x-3 gap-y-2.5 border-t border-line-2 bg-panel px-[30px] py-3.5 max-md:px-6 max-md:pb-[calc(14px+env(safe-area-inset-bottom))] max-sm:px-4 max-xs:pt-3 max-xs:pb-[calc(12px+env(safe-area-inset-bottom))]'>
+				<div className='flex flex-none flex-wrap items-center justify-end gap-x-3 gap-y-2.5 border-t border-line bg-raised px-[30px] py-3.5 max-md:px-6 max-md:pb-[calc(14px+env(safe-area-inset-bottom))] max-sm:px-4 max-xs:pt-3 max-xs:pb-[calc(12px+env(safe-area-inset-bottom))]'>
 					{bot.enabled ? (
 						status.kind === 'done' ? (
-							<div role='status' className='flex flex-auto flex-wrap items-center justify-between gap-3 rounded-[10px] border border-line-2 py-3 pr-3 pl-4 text-[14px] text-fg'>
+							<div role='status' className='flex flex-auto flex-wrap items-center justify-between gap-3 rounded-box border border-line-2 bg-soft py-3 pr-3 pl-4 text-[14px] text-fg'>
 								<span>{t.sub_done}</span>
 								<a className={`btn-c ${FOOT_BTN}`} href={status.url} target='_blank' rel='noopener'>
 									{fill(t.sub_view, { n: status.number })}
@@ -369,7 +371,7 @@ function Modal() {
 								) : checkError ? (
 									<p role='alert' className={`${HINT} text-err`}>
 										{checkError}{' '}
-										<button type='button' className='cursor-pointer border-0 bg-transparent p-0 font-[inherit] text-cyan underline underline-offset-2 hover:text-fg' onClick={retryCheck}>
+										<button type='button' className='cursor-pointer border-0 bg-transparent p-0 font-[inherit] text-blue-ink underline underline-offset-2 hover:text-fg' onClick={retryCheck}>
 											{t.sub_retry}
 										</button>
 									</p>
@@ -388,7 +390,7 @@ function Modal() {
 							<p className={`${HINT} text-fg-3`} aria-live='polite'>
 								{hint}
 							</p>
-							<a className={`${FOOT_BTN} border border-line-3 bg-transparent font-bold text-fg hover:text-cyan-2`} href={edit} target='_blank' rel='noopener'>
+							<a className={`btn-g ${FOOT_BTN} border border-line-3 bg-panel font-semibold text-fg hover:bg-soft`} href={edit} target='_blank' rel='noopener'>
 								{fill(t.go_edit, { x: file })}
 							</a>
 							<a className={`btn-c ${FOOT_BTN}`} href={issue} target='_blank' rel='noopener'>

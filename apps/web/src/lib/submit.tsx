@@ -59,8 +59,8 @@ export type ShotFile = { file: File; preview: string; problem?: string };
 
 const SHOT_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
 
-// The Turnstile widget. A token is good for one submission, so changing `round` renders a fresh widget. It stays out of sight unless Cloudflare needs the visitor to click, so most visitors never see it, and so says nothing when it fails: onFail is called when the script does not load and on every error the widget reports (a hostname the site key does not allow, a network failure, a challenge the visitor did not pass), so that the form can say so instead of waiting for a token that will not come. Turnstile retries some errors by itself; a token that arrives later still reaches onToken.
-export function Captcha({ siteKey, lang, round, onToken, onFail, theme = 'dark', className }: { siteKey: string; lang: LangCode; round: number; onToken: (token: string) => void; onFail: () => void; theme?: 'dark' | 'light'; className?: string }) {
+// The Turnstile widget. A token is good for one submission, so changing `round` renders a fresh widget. It stays out of sight unless Cloudflare needs the visitor to click, so most visitors never see it, and so says nothing when it fails: onFail is called when the script does not load and on every error the widget reports (a hostname the site key does not allow, a network failure, a challenge the visitor did not pass), so that the form can say so instead of waiting for a token that will not come. Turnstile retries some errors by itself; a token that arrives later still reaches onToken. `theme` defaults to 'auto', which follows the visitor's colour scheme as the original look does; the retro look, which is always light, passes 'light'.
+export function Captcha({ siteKey, lang, round, onToken, onFail, theme = 'auto', className }: { siteKey: string; lang: LangCode; round: number; onToken: (token: string) => void; onFail: () => void; theme?: 'auto' | 'dark' | 'light'; className?: string }) {
 	const box = useRef<HTMLDivElement>(null);
 	const handlers = useRef({ onToken, onFail });
 	handlers.current = { onToken, onFail };

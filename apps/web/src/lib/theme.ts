@@ -1,7 +1,7 @@
 import { createIsomorphicFn } from '@tanstack/react-start';
 import { getCookie } from '@tanstack/react-start/server';
 
-// The site has two looks over the same pages, links and copy: the original dark one (the default, and what crawlers get, since they send no cookie) and a retro desktop. The choice lives in a cookie rather than the URL, so it never splits a page into two URLs; the server reads it to render the chosen look and load only its stylesheet, so nothing flashes on load.
+// The site has two looks over the same pages, links and copy: the original look (the default, light or dark by the system setting, and what crawlers get, since they send no cookie) and a retro desktop. The choice lives in a cookie rather than the URL, so it never splits a page into two URLs; the server reads it to render the chosen look and load only its stylesheet, so nothing flashes on load.
 export const THEMES = ['original', 'retro'] as const;
 export type Theme = (typeof THEMES)[number];
 export const DEFAULT_THEME: Theme = 'original';
