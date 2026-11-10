@@ -1,0 +1,64 @@
+/* The original look. Tailwind scans the original look's components (not src/retro, which has its own stylesheet), and the site's colours, fonts and breakpoints are its theme, so components style themselves with utilities: `bg-panel`, `text-fg-3`, `font-mono`, `max-md:`.
+
+What utilities cannot say, or what many pages share and adjust by class, is kept in the files under styles/, in the components layer below the utilities: rules on bare elements (body, links, focus rings), pseudo-elements, keyframes, the look's primitives (window chrome, tiles, buttons), and the parts of components shared with the retro look (Score, Like), which each look's stylesheet draws under the same class names. */
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities) source(none);
+
+/* Tailwind's preflight is left out: the design was drawn on the browser's default styles (heading sizes and margins, list bullets, button padding), and preflight resets them all. Only its border reset is taken, so a `border` utility draws a solid line in the current colour as it does elsewhere. */
+@layer base {
+	*,
+	::before,
+	::after,
+	::backdrop,
+	::file-selector-button {
+		border: 0 solid;
+	}
+}
+@source './components';
+@source './routes';
+@source './lib';
+
+/* In cascade order: the bare elements and the page layout, the primitives (feedback, windows, tiles, cards, buttons), the like and score classes both looks share, the backdrop, and the motion, whose reduced-motion block turns off rules in the files before it. */
+@import './styles/base.css' layer(components);
+@import './styles/primitives.css' layer(components);
+@import './styles/score.css' layer(components);
+@import './styles/backdrop.css' layer(components);
+@import './styles/motion.css' layer(components);
+
+/* Only the site's own palette: Tailwind's default colours are cleared so every colour in a component is one of these. Static, as the stylesheets under styles/ read them as variables too. */
+@theme static {
+	--color-*: initial;
+	--color-white: #ffffff;
+	--color-black: #000000;
+	--color-bg: #0b0d10;
+	--color-panel: #12161b;
+	--color-bar: #171c22;
+	--color-well: #0f1216;
+	--color-well-2: #0f1318;
+	--color-line: #1c2229;
+	--color-line-2: #252c35;
+	--color-line-3: #313a45;
+	--color-fg: #eef2f5;
+	--color-fg-2: #a3afba;
+	--color-fg-3: #7e8b97;
+	--color-cyan: #3fd3f5;
+	--color-cyan-2: #8fe6fa;
+	--color-amber: #ffb547;
+	--color-green: #9be38a;
+	--color-err: #ff8a80;
+
+	--font-sans: system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Hiragino Sans', 'Apple SD Gothic Neo', 'Noto Sans CJK SC', sans-serif;
+	--font-display: 'Bricolage Grotesque', sans-serif;
+	--font-mono: 'JetBrains Mono', monospace;
+}
+
+/* Tailwind's breakpoints (sm 640, md 768, lg 1024, xl 1280) plus the widths the design already turns at, so moving a rule to a utility keeps where it turns. */
+@theme {
+	--breakpoint-xs: 520px;
+	--breakpoint-tab: 700px;
+	--breakpoint-nav: 860px;
+	--breakpoint-split: 960px;
+	--breakpoint-hero: 1000px;
+	--breakpoint-hdr: 1288px;
+}
