@@ -1,9 +1,12 @@
-import { AI_TOOLS, APPS, INSTALL_CMDS, INSTALL_TABS, type InstallTab, NSGO_SITE, PLUGINS, STATE_SOLUTIONS, TEMPLATES, UI_LIBS, fill, langDef, pad2, pick } from '@awesome-nsgo/catalog';
+import { AI_TOOLS, APP_PLATFORMS, APPS, INSTALL_CMDS, INSTALL_TABS, type InstallTab, NSGO_SITE, PLUGINS, STATE_SOLUTIONS, TEMPLATES, UI_LIBS, fill, langDef, likeKey, pick } from '@awesome-nsgo/catalog';
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router';
-import { type CSSProperties, Fragment, type PointerEvent, useEffect, useRef } from 'react';
-import { AppLink, KindTag, MonoTile, PlatformTags, WinBar, appView } from '../components/bits';
+import { Fragment } from 'react';
+import { AppLink, MonoTile, appView } from '../components/bits';
+import { AppCard } from '../components/EntryCard';
+import { NavIcon } from '../components/marks';
+import { ScoreChip } from '../components/Score';
 import { useLang, useT } from '../lib/lang';
-import { prefersReducedMotion, tilt, useCountUp } from '../lib/motion';
+import { useCountUp } from '../lib/motion';
 import { validateHomeSearch } from '../lib/page-search';
 import { pageHead } from '../lib/seo';
 import { DEFAULT_SORT, sortApps } from '../lib/showcase';
@@ -12,11 +15,14 @@ import { useSite } from '../lib/site';
 // The apps in the showcase's default order: by score, from scores.json, which the scores workflow updates each day (DEFAULT_SORT in lib/showcase.ts).
 const RANKED_APPS = sortApps(APPS, DEFAULT_SORT, {});
 
-// The marquee's apps: the first 30 in the showcase's default order, not the whole catalog. With every app twice, the strip grew past 80,000px with 400 links and icons, a layer too wide for Firefox to animate on the compositor, so it moved it on the main thread every frame.
-const MARQUEE_APPS = RANKED_APPS.slice(0, 30);
-
 // The featured section's apps: the four highest scores, so they change as the scores do.
 const FEATURED_APPS = RANKED_APPS.slice(0, 4);
+
+// The hero's list: the newest apps, by the date they were listed.
+const NEWEST_APPS = sortApps(APPS, 'newest', {}).slice(0, 5);
+
+// The platform rail: each platform with the number of apps that run on it, leaving out the platforms no app supports yet, as an empty cell reads as a dead link.
+const PLATFORM_COUNTS = APP_PLATFORMS.map((p) => ({ p, n: APPS.filter((a) => a.platforms.includes(p)).length })).filter((x) => x.n > 0);
 
 export const Route = createFileRoute('/')({
 	// ?install= keeps the install command's tab in the address, so a link reproduces the view.
@@ -25,100 +31,43 @@ export const Route = createFileRoute('/')({
 	component: HomePage,
 });
 
-// The entrance of the hero's parts: each pops up in one of three waves. The delay is written into the animation shorthand, which would otherwise reset a separate delay.
-const POP_1 = 'animate-[pop_0.7s_cubic-bezier(0.2,0.9,0.25,1.15)_0.15s_both] motion-reduce:animate-none';
-const POP_2 = 'animate-[pop_0.7s_cubic-bezier(0.2,0.9,0.25,1.15)_0.35s_both] motion-reduce:animate-none';
-const POP_3 = 'animate-[pop_0.7s_cubic-bezier(0.2,0.9,0.25,1.15)_0.55s_both] motion-reduce:animate-none';
-// The hero windows' entrance fills only the delay before it starts (`backwards`): filled forever with `both`, its `transform: none` would cancel the .win:hover lift.
-const POP_WIN_2 = 'animate-[pop_0.7s_cubic-bezier(0.2,0.9,0.25,1.15)_0.35s_backwards] motion-reduce:animate-none';
-const POP_WIN_3 = 'animate-[pop_0.7s_cubic-bezier(0.2,0.9,0.25,1.15)_0.55s_backwards] motion-reduce:animate-none';
-
-// The headline arriving as one block, so its text remains plain inline content and the browser owns every line break.
-const HEADLINE_IN = 'animate-[chin_1s_cubic-bezier(0.2,0.8,0.2,1)_both] motion-reduce:animate-none';
-
-// Placement of the four floating app windows on the 1200px wall below the hero: the near pair in the middle, the far pair at the edges. The far pair goes below 1000px, the near pair below 700px (with the whole stage). Each window floats on its own phase of the same bob.
-const HERO_SLOTS = [
-	{ left: 0, top: 110, w: 230, z: -180, ry: 14, hide: 'max-hero:hidden', bob: 'animate-[bob_7s_ease-in-out_-2s_infinite_alternate]', pop: POP_WIN_3 },
-	{ left: 300, top: 40, w: 250, z: -60, ry: 6, hide: 'max-tab:hidden', bob: 'animate-[bob_7s_ease-in-out_-4s_infinite_alternate]', pop: POP_WIN_2 },
-	{ left: 650, top: 40, w: 250, z: -60, ry: -6, hide: 'max-tab:hidden', bob: 'animate-[bob_7s_ease-in-out_-1s_infinite_alternate]', pop: POP_WIN_2 },
-	{ left: 970, top: 110, w: 230, z: -180, ry: -14, hide: 'max-hero:hidden', bob: 'animate-[bob_7s_ease-in-out_-5s_infinite_alternate]', pop: POP_WIN_3 },
-] as const;
-// The slots in the order they are filled, the near pair first, so a catalog of fewer than four apps still fills the middle of the wall.
-const SLOT_ORDER = [1, 2, 0, 3] as const;
-
-// The wall's apps: the highest scores, those with an icon of their own first, as a window with a letter tile says little. Taken from the data, so an app leaving the catalog never breaks the home page; with fewer than four apps the far slots stay empty.
-const HERO_APPS = [...RANKED_APPS.filter((a) => a.icon), ...RANKED_APPS.filter((a) => !a.icon)]
-	.slice(0, HERO_SLOTS.length)
-	.map((app, i) => ({ app, ...HERO_SLOTS[SLOT_ORDER[i]] }))
-	.sort((a, b) => a.left - b.left);
-
-// The two sections under the hero (categories, featured) share their box, head row and heading; each adds its own vertical padding.
-const SEC = 'site-shell mx-auto flex flex-col gap-7 px-6 max-sm:px-5';
-const SEC_HEAD = 'flex flex-wrap items-end justify-between gap-4';
-const SEC_H2 = 'm-0 text-[44px] font-black tracking-[-0.03em] max-sm:text-[34px]';
-// The hero's two 52px buttons; on phones they grow to fill their row (see the row's comment).
-const BTN_52 = 'box-border inline-flex min-h-13 items-center gap-[0.28em] rounded-[12px] px-7 py-0 text-[16px] max-sm:flex-auto max-sm:justify-center';
+// The sections under the hero share their box, head row and heading; each adds its own vertical padding.
+const SEC = 'site-shell mx-auto flex flex-col px-6 max-sm:px-5';
+const SEC_HEAD = 'mb-8 flex flex-wrap items-end justify-between gap-4';
+// Chinese, Japanese and Korean headings get looser tracking and leading than Latin ones; :lang() matches the language the heading inherits.
+const CJK_H = '[&:is(:lang(zh-CN),:lang(zh-TW),:lang(ja),:lang(ko))]:tracking-[-0.005em] [&:is(:lang(zh-CN),:lang(zh-TW),:lang(ja),:lang(ko))]:leading-[1.25]';
+const SEC_H2 = `m-0 text-[length:clamp(26px,3.4vw,36px)] leading-[1.14] font-bold tracking-[-0.03em] ${CJK_H}`;
+// The hero's two 48px buttons; on phones they grow to fill their row (see the row's comment).
+const BTN_48 = 'box-border inline-flex min-h-12 items-center justify-center gap-[0.35em] rounded-full px-6 py-0 text-[15px] font-semibold max-sm:flex-auto';
 
 function HomePage() {
 	const t = useT();
-	const lang = useLang();
 	const nApps = APPS.length;
-	const marqN = MARQUEE_APPS.length;
 	return (
 		<div className='enter'>
 			<Hero />
-			{/* No strip and no featured section while the catalog has no apps: their headings over nothing would read as a broken page. */}
-			{/* fetchPriority='low' keeps React from preloading the icons ahead of the stylesheets. They are not lazy: the strip clips them with overflow:hidden and slides them in with a transform, so a lazy icon could start loading only as it enters and show as a blank square at the edge. */}
-			{/* On phones the strip fades out over the gutter at both edges instead of being cut at the screen's edge. */}
-			{marqN > 0 && <section aria-label={t.a_marquee} className='overflow-hidden border-b border-line bg-bg/50 px-0 py-[22px] max-sm:py-4 max-sm:[mask-image:linear-gradient(to_right,transparent,#000_16px,#000_calc(100%_-_16px),transparent)]'>
-				{/* The strip's duration follows its length, keeping its speed whatever the number of apps on it: 1.2 s an app, the pace the strip had at 40 apps in 48 s. Set only the duration inline so older Windows browsers do not reject a calculated animation value. */}
-				<div className='flex w-max gap-14 animate-[marq_1s_linear_infinite] hover:[animation-play-state:paused] motion-reduce:animate-none max-sm:gap-10' style={{ animationDuration: `${marqN * 1.2}s` }}>
-					{[...MARQUEE_APPS, ...MARQUEE_APPS].map((a, i) => (
-						<AppLink key={`${a.slug}-${i}`} slug={a.slug} className='inline-flex items-center gap-3.5 whitespace-nowrap border-0 bg-transparent p-0 font-display text-[26px] font-bold tracking-[-0.02em] text-fg-3 no-underline max-sm:min-h-10 max-sm:gap-2.5 max-sm:text-[20px]' tabIndex={i >= marqN ? -1 : undefined} hidden={i >= marqN}>
-							{a.icon ? (
-								<img className='app-icon size-9 flex-none max-sm:size-7' src={a.icon} alt='' width={36} height={36} fetchPriority='low' decoding='async' />
-							) : (
-								<span aria-hidden='true' className={`flex size-9 flex-none items-center justify-center rounded-[22.5%] text-[18px] font-extrabold max-sm:size-7 max-sm:text-[14px] tone-${APPS.indexOf(a) % 3}`}>
-									{a.name.charAt(0).toUpperCase()}
-								</span>
-							)}
-							{a.name}
-						</AppLink>
-					))}
-				</div>
-			</section>}
+			{/* No platform rail and no featured section while the catalog has no apps: their headings over nothing would read as a broken page. */}
+			<PlatformRail />
 			<Categories />
-			{FEATURED_APPS.length > 0 && <section aria-labelledby='fresh' className={`${SEC} pt-14 pb-24 max-sm:pb-16`}>
-				<div className={`rv ${SEC_HEAD}`}>
-					<div className='flex flex-col gap-2.5'>
-						<span className='kicker' lang='en'>02 / FEATURED</span>
-						<h2 id='fresh' className={SEC_H2}>
-							{t.feat_h}
-						</h2>
-					</div>
-					<Link to='/showcase' className='btn-g btn-44 btn-outline'>
-						{fill(t.feat_all, { n: nApps })} <span className='arrow'>→</span>
-					</Link>
+			{FEATURED_APPS.length > 0 && (
+				<div className='border-t border-line bg-soft pt-20 max-sm:pt-14'>
+					<section aria-labelledby='fresh' className={`${SEC} pb-24 max-sm:pb-16`}>
+						<div className={`rv ${SEC_HEAD}`}>
+							<h2 id='fresh' className={SEC_H2}>
+								{t.feat_h}
+							</h2>
+							<Link to='/showcase' className='btn-g btn-44 btn-outline'>
+								{fill(t.feat_all, { n: nApps })} <span className='arrow'>→</span>
+							</Link>
+						</div>
+						<div className='grid grid-cols-[repeat(auto-fit,minmax(min(100%,260px),1fr))] gap-4'>
+							{FEATURED_APPS.map((a, k) => (
+								<AppCard key={a.slug} app={a} k={k} as='h3' like={false} score={false} />
+							))}
+						</div>
+					</section>
 				</div>
-				<div className='grid grid-cols-[repeat(auto-fit,minmax(min(100%,270px),1fr))] gap-4'>
-					{FEATURED_APPS.map((app, k) => {
-						const v = appView(app);
-						return (
-							<div key={app.slug} className={`rv d${k} flex`}>
-								{/* A link to the app's page that keeps the look it had as a button instead of the link colour and underline. */}
-								<AppLink slug={app.slug} className='win card text-fg no-underline' dialog>
-									<WinBar label={v.host} size='sm' className='card-bar' />
-									<div className='flex flex-auto flex-col gap-3.5 p-[22px] max-sm:p-[18px]'>
-										<MonoTile view={v} size={52} />
-										<h3 className='m-0 text-[19px] font-black tracking-[-0.01em]'>{v.app.name}</h3>
-										<span className='text-[14px] leading-[1.65] text-fg-2'>{pick(v.app.desc, lang)}</span>
-									</div>
-								</AppLink>
-							</div>
-						);
-					})}
-				</div>
-			</section>}
+			)}
 		</div>
 	);
 }
@@ -131,34 +80,9 @@ function Hero() {
 	const navigate = useNavigate({ from: '/' });
 	const tab: InstallTab = install ?? 'go';
 	const setTab = (k: InstallTab) => void navigate({ search: (prev) => ({ ...prev, install: k === 'go' ? undefined : k }), replace: true, resetScroll: false });
-	const heroRef = useRef<HTMLElement>(null);
-	const heroBounds = useRef<DOMRect | null>(null);
 	const e = useCountUp();
 	const words = langDef(lang).words;
-
-	useEffect(() => {
-		const el = heroRef.current;
-		if (!el) return;
-		const update = () => {
-			heroBounds.current = el.getBoundingClientRect();
-		};
-		update();
-		const observer = new ResizeObserver(update);
-		observer.observe(el);
-		return () => observer.disconnect();
-	}, []);
-
-	const onMove = (ev: PointerEvent<HTMLElement>) => {
-		const el = heroRef.current;
-		const r = heroBounds.current;
-		if (!el || !r || prefersReducedMotion()) return;
-		el.style.setProperty('--px', (((ev.clientX - r.left) / r.width - 0.5) * 2).toFixed(3));
-		el.style.setProperty('--py', (((ev.clientY - r.top) / r.height - 0.5) * 2).toFixed(3));
-	};
-	const onLeave = () => {
-		heroRef.current?.style.setProperty('--px', '0');
-		heroRef.current?.style.setProperty('--py', '0');
-	};
+	const nApps = APPS.length;
 
 	const stats = [
 		{ n: String(Math.round(APPS.length * e)), label: t.st_apps },
@@ -168,148 +92,133 @@ function Hero() {
 	];
 
 	return (
-		<section ref={heroRef} onPointerMove={onMove} onPointerLeave={onLeave} className='relative overflow-hidden border-b border-line max-tab:pb-14'>
-			{/* Copy on the left, the code window on the right; one column below 1000px. */}
-			<div className='site-shell relative z-2 mx-auto grid grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] items-center gap-x-16 gap-y-12 px-6 pt-28 pb-0 max-hero:grid-cols-1 max-hero:pt-18 max-sm:px-5 max-sm:pt-12'>
-				<div className='flex min-w-0 flex-col items-start gap-7'>
-				<Link to='/showcase' className={`group box-border inline-flex min-h-9 items-center gap-2.5 rounded-full border border-line-3 bg-panel/75 py-0 pr-3.5 pl-1.5 text-[13px] text-fg-2 no-underline backdrop-blur-[8px] transition-[border-color,color] duration-200 ease-[ease] hover:border-cyan hover:text-fg max-md:min-h-10 ${POP_1}`}>
-					<span className='inline-flex items-center gap-1.5 rounded-full bg-cyan/14 px-2.5 py-[3px] font-mono text-[11px] font-bold text-cyan' lang='en'>
-						<span className='pulse size-1.5 rounded-full bg-cyan' />
-						LIVE
-					</span>
-					{fill(t.live_badge, { n: APPS.length })}
-					<span className='arrow text-fg group-hover:[transform:translateX(4px)]'>→</span>
-				</Link>
-
-				{/* The phrases differ only in colour; they remain plain inline text so the available width decides every wrap. */}
-				<h1 className={`m-0 text-[length:clamp(38px,4.7vw,68px)] leading-[1.16] font-extrabold data-[words=true]:text-[length:clamp(36px,4.4vw,62px)] data-[words=true]:tracking-[-0.03em] max-sm:text-[length:min(38px,9vw)] max-sm:data-[words=true]:text-[36px] ${HEADLINE_IN}`} data-words={words}>
-					{t.h1_1}
-					{words && ' '}
-					<span className='text-cyan [text-shadow:0_0_40px_rgba(63,211,245,0.25)]'>{t.h1_2}</span>
-				</h1>
-
-				<p className={`m-0 text-[17px] leading-[1.75] text-fg-2 ${POP_2}`}>
-					{t.hero_p}
-					{words && ' '}
-					{t.hero_p2}
-				</p>
-
-				{/* Below 640px the tabs and the copy button share the first line and the command takes the whole second line. The command wraps at its spaces rather than scrolling, each word kept whole (a module path breaks at its hyphen otherwise), so the end that says what it does (init -module … my-app) is never hidden; a word wider than the box still scrolls. */}
-				<div className={`box-border inline-flex max-w-full items-center gap-1 rounded-[14px] border border-line-3 bg-panel/85 p-1.5 shadow-[0_20px_60px_rgba(0,0,0,0.4)] backdrop-blur-[10px] max-sm:flex max-sm:w-full max-sm:flex-wrap ${POP_2}`}>
-					<div role='tablist' aria-label={t.a_install} className='flex flex-none gap-0.5'>
-						{INSTALL_TABS.map((it) => (
-							<button key={it.key} type='button' role='tab' aria-selected={tab === it.key} onClick={() => setTab(it.key)} className='min-h-9 rounded-[9px] border-0 bg-transparent px-3 py-0 font-mono text-[12px] text-fg-3 aria-selected:bg-line-2 aria-selected:text-fg max-md:min-h-10'>
-								{it.label}
-							</button>
-						))}
-					</div>
-					<code className='min-w-0 flex-auto overflow-x-auto px-3.5 py-0 text-left font-mono text-[14px] text-fg max-sm:order-last max-sm:basis-full max-sm:px-3 max-sm:py-2.5 max-sm:text-[13px]'>
-						<span className='text-cyan'>❯ </span>
-						{INSTALL_CMDS[tab].split(' ').map((word, i) => (
-							<Fragment key={i}>
-								{i > 0 && ' '}
-								<span className='whitespace-nowrap'>{word}</span>
-							</Fragment>
-						))}
-					</code>
-					<button type='button' className='btn-g min-h-9 min-w-[72px] flex-none rounded-[9px] border border-line-3 bg-transparent px-3 py-0 text-[13px] text-fg hover:border-fg hover:bg-white/4 max-md:min-h-10 max-sm:ml-auto' onClick={() => copy(INSTALL_CMDS[tab], 'cmd')} aria-label={t.a_copy_install}>
-						{copied === 'cmd' ? t.copied : t.copy}
-					</button>
-				</div>
-
-				{/* On phones the two buttons fill the row between them, or each its own row when they do not fit side by side. */}
-				<div className={`flex flex-wrap gap-3 max-sm:self-stretch ${POP_3}`}>
-					<Link to='/showcase' className={`btn-c ${BTN_52}`}>
-						{t.explore} <span className='arrow'>→</span>
-					</Link>
-					<a className={`btn-g ${BTN_52} border border-line-3 bg-bg/50 font-semibold text-fg hover:border-fg hover:bg-white/4`} href={NSGO_SITE} target='_blank' rel='noopener'>
-						{t.site}
-					</a>
-				</div>
-
-				<div className={`flex flex-wrap gap-x-7 gap-y-2 text-[14px] text-fg-3 ${POP_3}`}>
-					{stats.map((st) => (
-						<span key={st.label}>
-							<span className='font-display text-[18px] font-extrabold text-fg tabular-nums'>{st.n}</span> {st.label}
+		<section className='relative pt-20 pb-16 max-sm:pt-10 max-sm:pb-10'>
+			{/* Copy on the left, the newest apps on the right; one column below 1000px. The two lanes drift in the space above the Newest card (styles/backdrop.css), hidden below 1000px. */}
+			<div className='site-shell relative mx-auto grid grid-cols-[minmax(0,1fr)_400px] items-start gap-x-14 gap-y-10 px-6 max-hero:grid-cols-1 max-sm:px-5'>
+				<span aria-hidden='true' className='backdrop-lane l1 pointer-events-none' />
+				<span aria-hidden='true' className='backdrop-lane l2 pointer-events-none' />
+				<div className='flex min-w-0 flex-col items-start gap-6'>
+					<Link to='/showcase' className='rise [animation-delay:0.08s] group inline-flex h-8 items-center gap-2 rounded-full border border-line-2 bg-panel pr-3 pl-2.5 text-[13px] font-medium text-fg-2 no-underline [box-shadow:var(--sh-1)] hover:border-line-3 hover:text-fg max-md:h-10'>
+						<span className='lanes' />
+						{fill(t.live_badge, { n: nApps })}
+						<span className='arrow' aria-hidden='true'>
+							→
 						</span>
-					))}
-				</div>
-				</div>
+					</Link>
 
-				<div className='min-w-0 max-hero:max-w-[560px]'>
-					<div className='relative animate-[bob_7s_ease-in-out_infinite_alternate] motion-reduce:animate-none'>
-						<div className={`overflow-hidden rounded-2xl border border-cyan bg-panel shadow-[0_0_0_1px_rgba(63,211,245,0.3),0_50px_100px_rgba(0,0,0,0.65),0_0_80px_rgba(63,211,245,0.18)] ${POP_2}`}>
-							<WinBar size='lg' className='h-9 gap-2 px-3 py-0'>
-								<span className='mr-10 flex-auto text-center font-mono text-[12px] text-fg-3'>my-app — app.go</span>
-							</WinBar>
-							<HeroCode />
+					{/* The second phrase is set apart by a lane under it (.lane-under); both remain plain inline text so the available width decides every wrap. Languages written without spaces between words take a smaller size, as their lines hold more. */}
+					<h1
+						className='rise [animation-delay:0.14s] m-0 text-[length:clamp(38px,4.8vw,60px)] leading-[1.06] font-extrabold tracking-[-0.045em] data-[words=false]:text-[length:clamp(34px,4.2vw,52px)] max-sm:text-[length:min(36px,9vw)] max-sm:data-[words=false]:text-[34px] [&:is(:lang(zh-CN),:lang(zh-TW),:lang(ja),:lang(ko))]:leading-[1.18] [&:is(:lang(zh-CN),:lang(zh-TW),:lang(ja),:lang(ko))]:tracking-[-0.015em]'
+						data-words={words}
+					>
+						{t.h1_1}
+						{words && ' '}
+						<span className='lane-under'>{t.h1_2}</span>
+					</h1>
+
+					<p className='rise [animation-delay:0.14s] m-0 max-w-[560px] text-[17.5px] leading-[1.7] text-fg-2 [&:is(:lang(zh-CN),:lang(zh-TW),:lang(ja),:lang(ko))]:max-w-[32em]'>
+						{t.hero_p}
+						{words && ' '}
+						{t.hero_p2}
+					</p>
+
+					{/* Below 640px the tabs and the copy button share the first line and the command takes the whole second line. The command wraps at its spaces rather than scrolling, each word kept whole (a module path breaks at its hyphen otherwise), so the end that says what it does (init -module … my-app) is never hidden; a word wider than the box still scrolls. */}
+					<div className='rise [animation-delay:0.2s] box-border inline-flex max-w-full items-center gap-1 rounded-menu border border-line-2 bg-soft p-1 max-sm:flex max-sm:w-full max-sm:flex-wrap'>
+						<div role='tablist' aria-label={t.a_install} className='flex flex-none gap-0.5'>
+							{INSTALL_TABS.map((it) => (
+								<button key={it.key} type='button' role='tab' aria-selected={tab === it.key} onClick={() => setTab(it.key)} className='seg-tab min-h-8 rounded-[9px] border-0 bg-transparent px-2.5 py-0 font-mono text-[12.5px] text-fg-2 aria-selected:bg-panel aria-selected:font-semibold aria-selected:text-fg aria-selected:[box-shadow:var(--sh-1),0_0_0_1px_var(--color-line-2)] max-md:min-h-10'>
+									{it.label}
+								</button>
+							))}
 						</div>
+						<code className='min-w-0 flex-auto overflow-x-auto px-3.5 py-0 text-left font-mono text-[13.5px] text-fg max-sm:order-last max-sm:basis-full max-sm:px-3 max-sm:py-2.5 max-sm:text-[13px]'>
+							<span className='cmd-p'>$ </span>
+							{INSTALL_CMDS[tab].split(' ').map((word, i) => (
+								<Fragment key={i}>
+									{i > 0 && ' '}
+									<span className='whitespace-nowrap'>{word}</span>
+								</Fragment>
+							))}
+						</code>
+						<button type='button' className={`btn-g min-h-8 min-w-[72px] flex-none rounded-[9px] border border-line-2 bg-panel px-3 py-0 text-[12.5px] font-semibold hover:border-line-3 hover:bg-soft max-md:min-h-10 max-sm:ml-auto ${copied === 'cmd' ? 'text-blue-ink' : 'text-fg-2'}`} onClick={() => copy(INSTALL_CMDS[tab], 'cmd')} aria-label={t.a_copy_install}>
+							{copied === 'cmd' ? t.copied : t.copy}
+						</button>
+					</div>
+
+					{/* On phones the two buttons fill the row between them, or each its own row when they do not fit side by side. */}
+					<div className='rise [animation-delay:0.26s] flex flex-wrap gap-3 max-sm:self-stretch'>
+						<Link to='/showcase' className={`btn-c ${BTN_48}`}>
+							{t.explore} <span className='arrow'>→</span>
+						</Link>
+						<a className={`btn-g btn-outline ${BTN_48}`} href={NSGO_SITE} target='_blank' rel='noopener'>
+							{t.site}
+						</a>
+					</div>
+
+					{/* The figures sit between hairlines; on phones they wrap freely and the hairlines go, as a wrapped row would start with one. */}
+					<div className='rise [animation-delay:0.26s] flex flex-wrap gap-x-6 gap-y-2 text-[13.5px] text-fg-3 [&>span+span]:border-l [&>span+span]:border-line-2 [&>span+span]:pl-6 max-sm:[&>span+span]:border-l-0 max-sm:[&>span+span]:pl-0'>
+						{stats.map((st) => (
+							<span key={st.label}>
+								<span className='text-[19px] font-bold text-fg tabular-nums'>{st.n}</span> {st.label}
+							</span>
+						))}
 					</div>
 				</div>
-			</div>
 
-			{/* With the code window in the hero, the wall has no window left to show below 700px. */}
-			<div className='relative z-1 mt-16 h-[420px] perspective-[1800px] max-tab:hidden'>
-				{/* The 560x160 ellipse softened as if blurred by 90px, drawn as a gradient for the same reason as the backdrop's blobs: the box is 180px larger on every side, and the centre is 62% of the colour, as the blur, wider than the ellipse is tall, never reached the whole of it. */}
-				<div aria-hidden='true' className='pointer-events-none absolute top-[120px] left-1/2 -mt-[180px] -ml-[460px] h-[520px] w-[920px] bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--color-cyan)_62%,transparent)_0%,color-mix(in_srgb,var(--color-cyan)_55%,transparent)_30%,transparent_100%)] opacity-22' />
-				{/* The 3D wall's own box sits in front of the windows pushed back with translateZ, and the bottom fade covers the far ones, so neither may take the pointer; only the windows do. */}
-				<div className='pointer-events-none absolute top-0 left-1/2 -ml-[600px] h-[560px] w-[1200px] origin-[50%_0%] transform-3d [transform:rotateX(calc(24deg_-_var(--py,0)_*_5deg))_rotateY(calc(var(--px,0)_*_7deg))] [transition:transform_0.4s_cubic-bezier(0.2,0.7,0.2,1)]'>
-					{HERO_APPS.map((h) => {
-						const v = appView(h.app);
-						const style = { left: h.left, top: h.top, width: h.w, transform: `translateZ(${h.z}px) rotateY(${h.ry}deg)` } satisfies CSSProperties;
-						return (
-							<div key={h.app.slug} className={`pointer-events-auto absolute transform-3d ${h.hide}`} style={style}>
-								<div className={`${h.bob} motion-reduce:animate-none`}>
-									<AppLink slug={h.app.slug} className={`win box-border flex w-full flex-col overflow-hidden rounded-2xl border border-line-3 bg-panel p-0 text-left text-fg no-underline shadow-[0_40px_80px_rgba(0,0,0,0.6)] hover:border-cyan hover:shadow-[0_0_0_1px_var(--color-cyan),0_28px_70px_rgba(63,211,245,0.16)] ${h.pop}`} dialog>
-										<WinBar label={v.host} size='sm' className='card-bar' />
-										<span className='box-border flex w-full flex-col gap-3 p-[22px]'>
-											<MonoTile view={v} size={52} />
-											<span className='m-0 text-[19px] font-black tracking-normal'>{v.app.name}</span>
-											<span className='text-[13px] leading-[1.6] text-fg-2'>{pick(v.app.desc, lang)}</span>
-											<span className='flex flex-wrap items-center gap-2'><KindTag app={v.app} label={t[`kind_${v.app.kind}`]} /><PlatformTags app={v.app} /></span>
+				{/* The newest apps as a ranked list; phones show four of the five. */}
+				{NEWEST_APPS.length > 0 && (
+					<section aria-label={t.a_marquee} className='rise [animation-delay:0.2s] card [box-shadow:var(--sh-3)]'>
+						<div className='flex h-12 items-center justify-between border-b border-line px-5'>
+							<h2 className='kicker m-0 text-[13px]'>{t.sort_new}</h2>
+							<Link to='/showcase' search={{ sort: 'newest' }} className='inline-flex items-center text-[13px] font-semibold text-blue-ink no-underline hover:underline max-md:min-h-10'>
+								{fill(t.feat_all, { n: nApps })} →
+							</Link>
+						</div>
+						<ol className='m-0 list-none p-1.5 [&>li+li]:border-t [&>li+li]:border-line max-sm:[&>li:nth-child(n+5)]:hidden'>
+							{NEWEST_APPS.map((a) => (
+								<li key={a.slug}>
+									<AppLink slug={a.slug} dialog className='row grid grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-3 rounded-box px-3 py-2.5 text-fg no-underline'>
+										<MonoTile view={appView(a)} size={44} />
+										<span className='flex min-w-0 flex-col'>
+											<span className='truncate text-[15px] font-semibold'>{a.name}</span>
+											<span className='truncate text-[13px] text-fg-3'>{pick(a.desc, lang)}</span>
 										</span>
+										<ScoreChip item={likeKey.app(a)} name={a.name} className='text-[12.5px] text-fg-2' />
 									</AppLink>
-								</div>
-							</div>
-						);
-					})}
-				</div>
-				<div aria-hidden='true' className='pointer-events-none absolute right-0 bottom-0 left-0 z-3 h-60 bg-[linear-gradient(to_bottom,rgba(11,13,16,0),var(--color-bg)_85%)]' />
+								</li>
+							))}
+						</ol>
+					</section>
+				)}
 			</div>
 		</section>
 	);
 }
 
-// The program nsgo init writes, cut down: a counter whose text follows a signal (cmd/nsgo/init.go in oneo-me/nsgo, as its README shows it).
-function HeroCode() {
-	const ln = (n: number) => <span className='text-fg-3'>{String(n).padStart(2)}</span>;
-	const kw = (s: string) => <span className='text-amber'>{s}</span>;
-	const fn = (s: string) => <span className='text-cyan'>{s}</span>;
-	const str = (s: string) => <span className='text-green'>{s}</span>;
+// The platforms apps run on, each a link to the showcase filtered to it. Below md the list scrolls sideways inside the bordered track and fades out at its right edge, where more cells wait; the fade is on the list, not on the track, so the track keeps its border and corners, and the list's end padding lets the last cell scroll clear of the fade.
+function PlatformRail() {
+	const t = useT();
+	if (PLATFORM_COUNTS.length === 0) return null;
 	return (
-		<div className='code'>
-			{ln(1)}  {kw('func')} {fn('Root')}(cx *core.Scope) core.Node {'{'}
-			{'\n'}
-			{ln(2)}    n := core.{fn('NewSignal')}(cx, 0){'\n'}
-			{ln(3)}    {kw('return')} core.View{'{'}Children: []core.Node{'{'}
-			{'\n'}
-			{ln(4)}      core.Text{'{'}ContentFunc: {kw('func')}() string {'{'}
-			{'\n'}
-			{ln(5)}        {kw('return')} fmt.{fn('Sprintf')}({str('"Pressed %d times"')}, n.{fn('Get')}()){'\n'}
-			{ln(6)}      {'}}'},{'\n'}
-			{ln(7)}      base.Button{'{'}
-			{'\n'}
-			{ln(8)}        OnPress:  {kw('func')}(core.PressEvent) {'{'} n.{fn('Set')}(n.{fn('Get')}() + 1) {'}'},{'\n'}
-			{ln(9)}        Children: []core.Node{'{'}core.Text{'{'}Content: {str('"Press me"')}{'}}'},{'\n'}
-			{ln(10)}      {'}'},{'\n'}
-			{ln(11)}    {'}}'}
-			{'\n'}
-			{ln(12)}  {'}'}
-			{'\n'}
-			{ln(13)}{'\n'}
-			{ln(14)}  {kw('func')} {fn('main')}() {'{'} nsgo.{fn('Run')}(Root) {'}'}
-			<span className='animate-[blink_1s_steps(1)_infinite] text-cyan motion-reduce:animate-none'>▋</span>
-		</div>
+		<section aria-label={t.f_platform} className={`${SEC} pb-4`}>
+			<div className='overflow-hidden rounded-band border border-line-2 bg-soft p-2 max-md:px-0 max-md:py-1'>
+				<ul className='m-0 flex list-none gap-2 p-0 max-md:snap-x max-md:scroll-px-2 max-md:overflow-x-auto max-md:py-1 max-md:pr-7 max-md:pl-2 max-md:[mask-image:linear-gradient(to_right,#000_calc(100%-28px),transparent)] max-md:[scrollbar-width:none]'>
+					{PLATFORM_COUNTS.map(({ p, n }) => (
+						<li key={p} className='flex flex-1 max-md:flex-none'>
+							<Link to='/showcase' search={{ platform: p }} className='group flex min-h-14 flex-1 snap-start items-center gap-3 rounded-menu border border-line-2 bg-panel px-4 text-fg no-underline transition-[border-color,transform] duration-150 hover:-translate-y-px hover:border-line-3 motion-reduce:hover:translate-y-0'>
+								<span className='flex size-9 flex-none items-center justify-center rounded-[10px] bg-blue-soft text-blue'>
+									<span className='pglyph [--pg-size:20px]' data-p={p} />
+								</span>
+								<span className='flex flex-col'>
+									<span className='text-[14px] font-semibold whitespace-nowrap'>{t[`platform_${p}`]}</span>
+									<span className='text-[12.5px] text-fg-3 tabular-nums'>{n}</span>
+								</span>
+							</Link>
+						</li>
+					))}
+				</ul>
+			</div>
+		</section>
 	);
 }
 
@@ -318,47 +227,40 @@ function Categories() {
 	const nState = STATE_SOLUTIONS.length;
 	const nTpl = TEMPLATES.length;
 	const nAi = AI_TOOLS.length;
+	// The categories still waiting for their first entries wear the warm "wanted" tone on their badge; showcase, plugins and ui always have entries.
 	const cats = [
-		{ to: '/showcase', span: 'col-span-7', name: t.cat_show_name, path: '~/showcase', n: APPS.length, numTone: 'text-cyan', badge: t.cat_show_badge, amber: false, pulse: false, desc: t.cat_show_desc },
-		{ to: '/plugins', span: 'col-span-5', name: t.nav_plugins, path: '~/plugins', n: PLUGINS.length, numTone: 'text-fg', badge: t.cat_plug_badge, amber: false, pulse: false, desc: fill(t.cat_plug_desc, { n: PLUGINS.length }) },
-		{ to: '/ui', span: 'col-span-5', name: t.cat_ui_name, path: '~/ui', n: UI_LIBS.length, numTone: 'text-fg', badge: fill(t.cat_ui_badge, { n: UI_LIBS.length }), amber: false, pulse: false, desc: t.cat_ui_desc },
-		{ to: '/state', span: 'col-span-7', name: t.cat_state_name, path: '~/state', n: nState, numTone: nState ? 'text-fg' : 'text-line-3', badge: nState ? fill(t.cat_state_count, { n: nState }) : t.cat_state_badge, amber: true, pulse: nState === 0, desc: t.cat_state_desc },
-		// The newer categories share a row, amber while they wait for their first entries, as state did.
-		{ to: '/templates', span: 'col-span-6', name: t.cat_tpl_name, path: '~/templates', n: nTpl, numTone: nTpl ? 'text-fg' : 'text-line-3', badge: nTpl ? fill(t.cat_tpl_count, { n: nTpl }) : t.cat_tpl_badge, amber: true, pulse: nTpl === 0, desc: t.cat_tpl_desc },
-		{ to: '/ai', span: 'col-span-6', name: t.cat_ai_name, path: '~/ai', n: nAi, numTone: nAi ? 'text-fg' : 'text-line-3', badge: nAi ? fill(t.cat_ai_count, { n: nAi }) : t.cat_ai_badge, amber: true, pulse: nAi === 0, desc: t.cat_ai_desc },
+		{ to: '/showcase', name: t.cat_show_name, badge: t.cat_show_badge, wanted: false, desc: t.cat_show_desc },
+		{ to: '/plugins', name: t.nav_plugins, badge: t.cat_plug_badge, wanted: false, desc: fill(t.cat_plug_desc, { n: PLUGINS.length }) },
+		{ to: '/ui', name: t.cat_ui_name, badge: fill(t.cat_ui_badge, { n: UI_LIBS.length }), wanted: false, desc: t.cat_ui_desc },
+		{ to: '/state', name: t.cat_state_name, badge: nState ? fill(t.cat_state_count, { n: nState }) : t.cat_state_badge, wanted: nState === 0, desc: t.cat_state_desc },
+		{ to: '/templates', name: t.cat_tpl_name, badge: nTpl ? fill(t.cat_tpl_count, { n: nTpl }) : t.cat_tpl_badge, wanted: nTpl === 0, desc: t.cat_tpl_desc },
+		{ to: '/ai', name: t.cat_ai_name, badge: nAi ? fill(t.cat_ai_count, { n: nAi }) : t.cat_ai_badge, wanted: nAi === 0, desc: t.cat_ai_desc },
 	] as const;
 	return (
-		<section aria-labelledby='cats' className={`${SEC} pt-22 pb-10 max-sm:pt-16`}>
+		<section aria-labelledby='cats' className={`${SEC} py-20 max-sm:py-14`}>
 			<div className={`rv ${SEC_HEAD}`}>
 				<div className='flex flex-col gap-2.5'>
-					<span className='kicker' lang='en'>01 / CATEGORIES</span>
 					<h2 id='cats' className={SEC_H2}>
 						{t.cats_h}
 					</h2>
+					<p className='m-0 text-[15px] text-fg-3'>{t.cats_src}</p>
 				</div>
-				<p className='m-0 text-[15px] text-fg-3'>{t.cats_src}</p>
 			</div>
-			<div className='grid grid-cols-12 gap-4'>
+			<div className='grid grid-cols-3 gap-3 max-split:grid-cols-2 max-tab:grid-cols-1'>
 				{cats.map((c, k) => (
-					<div key={c.to} className={`rv ${c.span} max-nav:col-span-12 d${k} flex`}>
-						<Link to={c.to} className='tile relative box-border flex min-h-[260px] flex-auto flex-col justify-between gap-5 overflow-hidden rounded-[20px] border border-line-2 bg-panel p-7 text-left hover:border-cyan max-sm:min-h-[200px] max-sm:p-5' {...tilt}>
-							<span className='glare' aria-hidden='true' />
-							<span className='flex w-full items-center justify-between'>
-								<span className='font-mono text-[12px] text-fg-3'>{c.path}</span>
-								<span className={`inline-flex items-center gap-2 rounded-full border px-2.5 py-1 font-mono text-[12px] font-bold ${c.amber ? 'border-amber text-amber' : 'border-cyan text-cyan'}`}>
-									<span className={`size-1.5 rounded-full bg-current ${c.pulse ? 'pulse' : ''}`} />
-									{c.badge}
+					// The reveal is on a wrapper: on the tile itself its settled transform would override the tile's hover lift. The tile's own border and shadow utilities outrank .tile:hover, so its hover restates them.
+					<div key={c.to} className={`rv d${k} flex`}>
+						<Link to={c.to} className='tile group relative flex min-h-[184px] flex-1 flex-col gap-3 rounded-card border border-line-2 bg-panel p-6 text-fg no-underline [box-shadow:var(--sh-1)] hover:border-line-3 hover:[box-shadow:var(--sh-2)] max-sm:min-h-0 max-sm:p-5'>
+							<span className='flex items-start justify-between gap-3'>
+								<span className='flex size-10 items-center justify-center rounded-box bg-blue-soft text-blue'>
+									<NavIcon to={c.to} />
 								</span>
+								<span className={`inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-[12.5px] font-semibold ${c.wanted ? 'bg-dev-soft text-dev' : 'bg-soft text-fg-2'}`}>{c.badge}</span>
 							</span>
-							<span className={`font-display text-[120px] leading-[0.85] font-extrabold tracking-[-0.06em] max-sm:text-[88px] ${c.numTone}`}>{pad2(c.n)}</span>
-							<span className='flex w-full items-end justify-between gap-4'>
-								<span className='flex min-w-0 flex-1 flex-col gap-1.5'>
-									<span className='text-[26px] font-black tracking-[-0.02em] max-sm:text-[22px]'>{c.name}</span>
-									<span className='text-[14px] leading-[1.6] text-fg-2'>{c.desc}</span>
-								</span>
-								<span className='arrow flex size-11 flex-[0_0_44px] items-center justify-center rounded-full border border-line-3 text-[18px] text-cyan' aria-hidden='true'>
-									→
-								</span>
+							<span className='text-[19px] font-[650] tracking-[-0.015em]'>{c.name}</span>
+							<span className='text-[14.5px] leading-[1.6] text-fg-2'>{c.desc}</span>
+							<span aria-hidden='true' className='arrow mt-auto self-end text-[16px] text-fg-3 group-hover:text-blue-ink'>
+								→
 							</span>
 						</Link>
 					</div>

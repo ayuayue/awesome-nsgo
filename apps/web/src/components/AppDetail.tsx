@@ -4,14 +4,14 @@ import { useLang, useT } from '../lib/lang';
 import { scoreTotal } from '../lib/score';
 import { appBadgeMarkdown } from '../lib/seo';
 import { useSite } from '../lib/site';
-import { AppLink, PlatformTags, type AppView, MonoTile, appView } from './bits';
+import { AppLink, type AppView, MonoTile, appView } from './bits';
 import { CopyButton } from './CopyCmd';
 import { LikeButton } from './Like';
 
 // The parts of an app's own page in the original look.
 
-// A section's heading on the app's page (about, badge, more by the author): small mono capitals.
-export const secH = 'm-0 font-mono text-[12px] font-normal tracking-[0.12em] text-fg-3 uppercase';
+// A section's heading on the app's page (about, badge, more by the author): a small sentence-case label after one blue lane.
+export const secH = "m-0 flex items-center gap-2 text-[13px] font-semibold text-fg-2 before:h-[5px] before:w-3 before:-skew-x-[10deg] before:rounded-[3px] before:bg-blue before:content-['']";
 
 // The README badge for the app's author: the badge as it shows, its Markdown and a copy button. The badge's alt text and the Markdown stay in English, as they go into the project's README, not this page.
 export function AppBadge({ app }: { app: App }) {
@@ -24,7 +24,7 @@ export function AppBadge({ app }: { app: App }) {
 			</h2>
 			<p className='m-0 text-[14px] leading-[1.55] text-fg-2'>{t.badge_p}</p>
 			<img className='block h-7 w-auto self-start' src='/badge.svg' alt='Listed on Awesome NSGo' width={200} height={28} loading='lazy' decoding='async' />
-			<div className='flex items-center gap-2 rounded-lg border border-line-2 bg-well-2 py-1 pr-1 pl-3'>
+			<div className='flex min-h-[42px] items-center gap-2 rounded-box border border-line-2 bg-soft py-1 pr-1 pl-3'>
 				{/* The Markdown is one long line; it scrolls inside its box rather than widening the column. */}
 				<code lang='en' className='min-w-0 flex-auto overflow-x-auto font-mono text-[12px] whitespace-nowrap text-fg-2 [scrollbar-width:none]'>
 					{md}
@@ -41,8 +41,9 @@ function addedOn(added: string, lang: LangCode): string {
 }
 
 // Keep URLs breakable when a narrow column needs it, but let the browser use normal punctuation opportunities first.
-const urlDd = 'font-mono text-[13px] wrap-break-word';
+const urlDd = 'font-mono text-[12.5px] wrap-break-word';
 
+// The app's facts as a docs-style info table: a label column and a value column, rows split by hairlines. The platforms are not among them: the page lists them under the screenshot, with their device glyphs.
 export function AppFacts({ view, kindLabel }: { view: AppView; kindLabel: string }) {
 	const t = useT();
 	const lang = useLang();
@@ -52,7 +53,7 @@ export function AppFacts({ view, kindLabel }: { view: AppView; kindLabel: string
 	const group = appGroup(app);
 	const score = entryScore(likeKey.app(app));
 	return (
-		<dl className='m-0 grid grid-cols-[auto_minmax(0,1fr)] gap-x-5 gap-y-3 rounded-[14px] border border-line-2 bg-panel px-5 py-[18px] text-[14px] max-sm:px-4 [&_a]:border-b [&_a]:border-line-3 [&_a]:text-fg [&_a]:no-underline [&_a:hover]:border-current [&_a:hover]:text-cyan [&>dd]:m-0 [&>dt]:text-fg-3'>
+		<dl className='m-0 grid grid-cols-[auto_minmax(0,1fr)] overflow-hidden rounded-card border border-line-2 bg-panel text-[14px] [box-shadow:var(--sh-1)] [&>dt]:border-b [&>dd]:border-b [&>dt]:border-line [&>dd]:border-line [&>dt]:py-2.5 [&>dd]:py-2.5 [&>dt]:pl-4 [&>dt]:pr-3 [&>dd]:pr-4 [&>dd]:m-0 [&>dt]:text-fg-3 [&>dd]:text-fg [&>dt:nth-last-child(2)]:border-b-0 [&>dd:last-child]:border-b-0 [&_a]:text-fg [&_a]:underline [&_a]:decoration-line-3 [&_a]:underline-offset-[0.2em] [&_a:hover]:text-blue-ink [&_a:hover]:decoration-current'>
 			<dt>{t.f_author}</dt>
 			<dd>
 				{profile ? (
@@ -65,8 +66,6 @@ export function AppFacts({ view, kindLabel }: { view: AppView; kindLabel: string
 			</dd>
 			<dt>{t.f_ui}</dt>
 			<dd>{kindLabel}</dd>
-			<dt>{t.f_platform}</dt>
-			<dd><PlatformTags app={app} /></dd>
 			<dt>{t.f_cat}</dt>
 			<dd>
 				<Link to='/showcase' search={{ cat: group }}>
@@ -114,13 +113,13 @@ export function AppActions({ app }: { app: App }) {
 	return (
 		// On a phone the open button takes its own row, and copy link fills the row under it beside the like button, so both rows are full width.
 		<div className='mt-2 flex flex-wrap items-center gap-2.5'>
-			<a className='btn-c inline-flex min-h-[50px] flex-initial items-center justify-center rounded-xl px-7 text-[15px] max-sm:flex-[1_1_100%]' href={app.url} target='_blank' rel='noopener'>
+			<a className='btn-c inline-flex min-h-12 items-center justify-center rounded-full px-7 text-[15px] max-sm:flex-[1_1_100%]' href={app.url} target='_blank' rel='noopener'>
 				{fill(t.open_x, { x: app.name })}
 			</a>
-			<button type='button' className='btn-g min-h-[50px] rounded-xl border border-line-3 bg-transparent px-[18px] py-0 text-[14px] font-semibold text-fg hover:border-fg hover:bg-white/4 max-sm:flex-1' onClick={() => copy(app.url, 'det')}>
+			<button type='button' className='btn-g btn-outline inline-flex min-h-12 items-center justify-center rounded-full px-5 text-[14.5px] font-semibold max-sm:flex-1' onClick={() => copy(app.url, 'det')}>
 				{copied === 'det' ? t.copied : t.copy_link}
 			</button>
-			<LikeButton item={likeKey.app(app)} name={app.name} className='like-btn min-h-[46px] rounded-[10px] px-4 text-[14px] max-sm:min-h-[50px]' size={18} />
+			<LikeButton item={likeKey.app(app)} name={app.name} className='like-btn min-h-12 rounded-full px-4 text-[14px]' size={18} />
 		</div>
 	);
 }
@@ -137,17 +136,17 @@ export function MoreBy({ app }: { app: App }) {
 			<h2 className={secH}>{label}</h2>
 			<div className='grid grid-cols-[repeat(auto-fill,minmax(min(100%,300px),1fr))] gap-3'>
 				{others.map((o) => (
-					// A link to the app's page that keeps the look it had as a button instead of the link colour and underline.
-					<AppLink key={o.slug} slug={o.slug} quick={false} className='flex items-center gap-3.5 rounded-xl border border-line-2 bg-panel px-4 py-3 text-left text-fg no-underline [transition:border-color_0.15s] hover:border-cyan'>
+					// A link to the app's page drawn as a small card rather than in the link colour with an underline.
+					<AppLink key={o.slug} slug={o.slug} quick={false} className='flex items-center gap-3.5 rounded-menu border border-line-2 bg-panel px-4 py-3 text-left text-fg no-underline transition-[border-color,transform] duration-150 hover:-translate-y-0.5 hover:border-line-3 motion-reduce:hover:translate-y-0'>
 						{o.icon ? (
 							<img className='app-icon size-8 flex-[0_0_32px]' src={o.icon} alt='' width={32} height={32} loading='lazy' decoding='async' />
 						) : (
-							<span aria-hidden='true' className='flex size-8 flex-[0_0_32px] items-center justify-center rounded-[9px] bg-line text-[14px] font-extrabold text-cyan'>
+							<span aria-hidden='true' className='flex size-8 flex-[0_0_32px] items-center justify-center rounded-[22.5%] bg-blue-soft text-[14px] font-bold text-blue-ink'>
 								{o.name.charAt(0).toUpperCase()}
 							</span>
 						)}
 						<span className='flex min-w-0 flex-auto flex-col gap-0.5'>
-							<span className='text-[14px] font-bold'>{o.name}</span>
+							<span className='text-[14px] font-semibold'>{o.name}</span>
 							<span className='truncate text-[12px] text-fg-3'>{pick(o.desc, lang)}</span>
 						</span>
 						<span aria-hidden='true' className='text-fg-3'>
@@ -174,12 +173,12 @@ export function AppPager({ view }: { view: AppView }) {
 		<AppLink
 			slug={app.slug}
 			quick={false}
-			className={`group flex min-w-0 flex-col gap-3.5 rounded-[14px] border border-line-2 bg-panel px-[22px] py-[18px] text-fg no-underline [transition:border-color_0.15s,transform_0.15s] hover:border-cyan hover:motion-safe:[transform:translateY(-2px)] ${dir === 'next' ? 'items-end text-right' : ''}`}
+			className={`group flex min-w-0 flex-col gap-3.5 rounded-card border border-line-2 bg-panel px-[22px] py-[18px] text-fg no-underline [box-shadow:var(--sh-1)] transition-[border-color,transform] duration-150 hover:border-line-3 hover:motion-safe:-translate-y-0.5 ${dir === 'next' ? 'items-end text-right' : ''}`}
 		>
-			<span className='font-mono text-[12px] tracking-[0.08em] text-fg-3 group-hover:text-cyan'>{dir === 'prev' ? `← ${t.pg_prev}` : `${t.pg_next} →`}</span>
+			<span className='text-[13px] font-semibold text-fg-3 group-hover:text-blue-ink'>{dir === 'prev' ? `← ${t.pg_prev}` : `${t.pg_next} →`}</span>
 			<span className={`flex max-w-full min-w-0 items-center gap-3.5 ${dir === 'next' ? 'flex-row-reverse' : ''}`}>
 				<MonoTile view={appView(app)} size={44} />
-				<span className='min-w-0 truncate font-display text-[22px] font-extrabold tracking-[-0.02em] max-sm:text-[18px]'>{app.name}</span>
+				<span className='min-w-0 truncate text-[20px] font-bold tracking-[-0.02em] max-sm:text-[17px]'>{app.name}</span>
 			</span>
 		</AppLink>
 	);

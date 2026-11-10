@@ -1,7 +1,7 @@
-// The share card of an app's page: a 1200×630 PNG with the app's icon, name, author and screenshot, which link previews (X, Slack, Discord, Telegram, Facebook, LinkedIn…) show in place of the raw screenshot, whose height they would crop. One card serves all five languages, so it carries no copy of its own: the localized title and description sit next to it in the preview.
+// The share card of an app's page: a 1200×630 PNG with the site's mark, the app's icon, name, author, platforms and screenshot, which link previews (X, Slack, Discord, Telegram, Facebook, LinkedIn…) show in place of the raw screenshot, whose height they would crop. One card serves all five languages, so it carries no copy of its own: the localized title and description sit next to it in the preview. renderSiteCard draws the site's own card, the default share image of every other page.
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { type App, SITE_URL } from '@awesome-nsgo/catalog';
+import { APP_PLATFORMS, type App, SITE_URL, t } from '@awesome-nsgo/catalog';
 import { type CSSProperties, type ReactNode, createElement } from 'react';
 import satori, { type Font, type FontWeight } from 'satori';
 import sharp from 'sharp';
@@ -10,8 +10,13 @@ import { type NotoIndex, WEIGHTS, fetchRetry, googleFace, notoFamily } from './n
 export const CARD_WIDTH = 1200;
 export const CARD_HEIGHT = 630;
 
-// The original look's palette (src/styles.css :root).
-const C = { bg: '#0b0d10', panel: '#12161b', bar: '#171c22', line2: '#252c35', line3: '#313a45', fg: '#eef2f5', fg2: '#a3afba', fg3: '#7e8b97', cyan: '#3fd3f5' };
+// The original look's light tokens (src/styles.css @theme static); keep in step with them.
+const C = { bg: '#ffffff', soft: '#f5f6f8', line: '#e1e3e8', fg: '#0c0d10', fg2: '#5b606a', fg3: '#6b707a', blue: '#007aff', blueInk: '#0062cc', blueSoft: '#eaf3ff' };
+// The top-left glow both cards share, as the site's backdrop has it.
+const GLOW = 'radial-gradient(circle at 0% 0%, rgba(0, 122, 255, 0.14), rgba(0, 122, 255, 0) 55%)';
+// The short platform names the cards' pills use: one card serves every language, so these stay in English.
+const PLATFORM_LABEL: Record<(typeof APP_PLATFORMS)[number], string> = { mac: 'macOS', win: 'Win', linux: 'Linux', ios: 'iOS', android: 'Android', web: 'Web', miniprogram: 'Mini' };
+const HOST = new URL(SITE_URL).hostname;
 
 const PAD = 64;
 const LEFT_W = 456;
@@ -21,7 +26,7 @@ const SHOT_H = 360;
 const ICON = 112;
 
 export interface Paths {
-	// The site's public/ directory, which holds /shots/, /icons/ and the site icon.
+	// The site's public/ directory, which holds /shots/, /icons/ and the site's mark (favicon.svg).
 	publicDir: string;
 	// apps/web/og/fonts.
 	fontDir: string;
@@ -37,6 +42,12 @@ export async function asPng(input: Buffer, width: number, height: number): Promi
 	return dataUri(await sharp(input, { density: 144 }).resize(width * 2, height * 2, { fit: 'cover', position: 'top' }).png().toBuffer());
 }
 
+// The site's mark (public/favicon.svg) as a PNG data URI at size, rasterised from the vector at the density that size needs (the SVG is drawn on a 32 unit grid), so it stays sharp at any size.
+export async function siteMark(publicDir: string, size: number): Promise<string> {
+	const svg = await readFile(join(publicDir, 'favicon.svg'));
+	return dataUri(await sharp(svg, { density: Math.ceil((72 * size * 2) / 32) }).resize(size * 2, size * 2).png().toBuffer());
+}
+
 // An image under public/ (a path such as /shots/x.webp) or on the ai-logo CDN.
 async function imageBytes(src: string, publicDir: string, slug: string): Promise<Buffer> {
 	if (src.startsWith('/')) return readFile(join(publicDir, src));
@@ -47,12 +58,12 @@ async function imageBytes(src: string, publicDir: string, slug: string): Promise
 
 // ---- fonts ----
 
+// Inter at 800 and 500 (SIL OFL, og/fonts/OFL-inter.txt). To fetch them again, ask Google Fonts' css2 API for `family=Inter:wght@500;800` with `curl -fsSL -A 'curl/8'` (the URL form googleFont in noto.ts builds): a client that is not a browser gets TrueType, which satori reads, and the two `src: url(…ttf)` entries it lists download as og/fonts/inter-500.ttf and inter-800.ttf.
 let latin: Promise<Font[]> | undefined;
 export function latinFonts(fontDir: string): Promise<Font[]> {
 	latin ??= Promise.all([
-		readFile(join(fontDir, 'bricolage-grotesque-800.ttf')).then((data): Font => ({ name: 'Bricolage Grotesque', data, weight: 800 })),
-		readFile(join(fontDir, 'bricolage-grotesque-500.ttf')).then((data): Font => ({ name: 'Bricolage Grotesque', data, weight: 500 })),
-		readFile(join(fontDir, 'jetbrains-mono-700.ttf')).then((data): Font => ({ name: 'JetBrains Mono', data, weight: 700 })),
+		readFile(join(fontDir, 'inter-800.ttf')).then((data): Font => ({ name: 'Inter', data, weight: 800 })),
+		readFile(join(fontDir, 'inter-500.ttf')).then((data): Font => ({ name: 'Inter', data, weight: 500 })),
 	]);
 	return latin;
 }
@@ -93,26 +104,31 @@ function nameSize(name: string): number {
 	return 52;
 }
 
-function hostOf(url: string): string {
-	return new URL(url).host.replace(/^www\./, '');
-}
-
 function letterTile(name: string, size: number): ReactNode {
-	return h('div', { display: 'flex', alignItems: 'center', justifyContent: 'center', width: size, height: size, borderRadius: size * 0.22, background: C.cyan, color: C.bg, fontSize: size * 0.5, fontWeight: 800 }, name.charAt(0).toUpperCase());
+	return h('div', { display: 'flex', alignItems: 'center', justifyContent: 'center', width: size, height: size, borderRadius: size * 0.225, background: 'linear-gradient(135deg, #4da3ff, #0062cc)', color: '#ffffff', fontSize: size * 0.5, fontWeight: 800 }, name.charAt(0).toUpperCase());
 }
 
 function iconNode(icon: string | undefined, name: string, size: number): ReactNode {
-	return icon ? img(icon, size, size, { borderRadius: size * 0.22 }) : letterTile(name, size);
+	return icon ? img(icon, size, size, { borderRadius: size * 0.225 }) : letterTile(name, size);
 }
 
-function windowFrame(host: string, shot: string): ReactNode {
-	const dot = h('div', { width: 12, height: 12, borderRadius: 6, background: C.line3, marginRight: 8 });
+// "Awesome NSGo" with NSGo in the link blue. Satori drops the space at the end of a text run, so the gap is a margin.
+function wordmark(size: number, letterSpacing: string): ReactNode {
+	return h('div', { display: 'flex', fontSize: size, fontWeight: 800, letterSpacing, color: C.fg }, 'Awesome', h('span', { marginLeft: size * 0.26, color: C.blueInk }, 'NSGo'));
+}
+
+// The platforms as outlined pills, in the order given.
+function platformPills(platforms: readonly (typeof APP_PLATFORMS)[number][], centred = false): ReactNode {
 	return h(
 		'div',
-		{ display: 'flex', flexDirection: 'column', width: SHOT_W + 2, borderRadius: 18, border: `1px solid ${C.line3}`, background: C.panel, overflow: 'hidden', boxShadow: '0 30px 80px rgba(0, 0, 0, 0.55)' },
-		h('div', { display: 'flex', alignItems: 'center', height: 40, padding: '0 16px', background: C.bar, borderBottom: `1px solid ${C.line2}` }, dot, dot, dot, h('div', { display: 'flex', marginLeft: 12, fontFamily: 'JetBrains Mono', fontSize: 16, fontWeight: 700, color: C.fg3 }, host)),
-		img(shot, SHOT_W, SHOT_H),
+		{ display: 'flex', flexWrap: 'wrap', justifyContent: centred ? 'center' : 'flex-start', rowGap: 8 },
+		...platforms.map((p) => h('div', { display: 'flex', alignItems: 'center', height: 36, padding: '0 14px', borderRadius: 18, border: `1px solid ${C.line}`, color: C.fg2, fontSize: 20, fontWeight: 500, marginRight: 8, marginLeft: centred ? 8 : 0 }, PLATFORM_LABEL[p])),
 	);
+}
+
+// The screenshot on a rounded, hairlined surface with a soft shadow: no title bar.
+function screenFrame(shot: string): ReactNode {
+	return h('div', { display: 'flex', width: SHOT_W + 2, borderRadius: 20, border: `1px solid ${C.line}`, background: C.soft, overflow: 'hidden', boxShadow: '0 30px 60px -20px rgba(16, 24, 40, 0.30)' }, img(shot, SHOT_W, SHOT_H + 40));
 }
 
 interface CardImages {
@@ -122,20 +138,23 @@ interface CardImages {
 }
 
 function card(app: App, im: CardImages): ReactNode {
-	// Without a screenshot the icon (or letter tile) fills the right column instead.
-	const right = im.shot ? windowFrame(hostOf(app.url), im.shot) : h('div', { display: 'flex', alignItems: 'center', justifyContent: 'center', width: SHOT_W, height: SHOT_H + 40 }, iconNode(im.icon, app.name, 280));
+	// Without a screenshot the icon (or letter tile) fills the right column instead, on a soft tile.
+	const right = im.shot
+		? screenFrame(im.shot)
+		: h('div', { display: 'flex', alignItems: 'center', justifyContent: 'center', width: 420, height: 420, borderRadius: 48, border: `1px solid ${C.line}`, background: C.soft }, iconNode(im.icon, app.name, 260));
 	return h(
 		'div',
-		{ display: 'flex', alignItems: 'center', width: CARD_WIDTH, height: CARD_HEIGHT, padding: PAD, background: C.bg, backgroundImage: 'radial-gradient(circle at 0% 0%, rgba(63, 211, 245, 0.18), rgba(63, 211, 245, 0) 60%)', fontFamily: 'Bricolage Grotesque', color: C.fg },
+		{ display: 'flex', alignItems: 'center', width: CARD_WIDTH, height: CARD_HEIGHT, padding: PAD, background: C.bg, backgroundImage: GLOW, fontFamily: 'Inter', color: C.fg },
 		h(
 			'div',
 			{ display: 'flex', flexDirection: 'column', width: LEFT_W, height: '100%' },
-			h('div', { display: 'flex', fontFamily: 'JetBrains Mono', fontSize: 22, fontWeight: 700, color: C.cyan }, `~/apps/${app.slug}`),
-			im.shot ? h('div', { display: 'flex', marginTop: 36 }, iconNode(im.icon, app.name, ICON)) : h('div', { display: 'flex', flexGrow: 1 }),
-			h('div', { display: 'flex', marginTop: 28, fontSize: nameSize(app.name), fontWeight: 800, lineHeight: 1.05, letterSpacing: '-0.02em' }, app.name),
+			h('div', { display: 'flex', alignItems: 'center' }, img(im.site, 40, 40, { borderRadius: 11, marginRight: 14 }), wordmark(26, '-0.02em')),
+			im.shot ? h('div', { display: 'flex', marginTop: 40 }, iconNode(im.icon, app.name, ICON)) : h('div', { display: 'flex', flexGrow: 1 }),
+			h('div', { display: 'flex', marginTop: 28, fontSize: nameSize(app.name), fontWeight: 800, lineHeight: 1.06, letterSpacing: '-0.035em' }, app.name),
 			h('div', { display: 'flex', marginTop: 16, fontSize: 30, fontWeight: 500, color: C.fg2 }, `by ${app.author}`),
 			h('div', { display: 'flex', flexGrow: 1 }),
-			h('div', { display: 'flex', alignItems: 'center' }, img(im.site, 48, 48, { borderRadius: 12 }), h('div', { display: 'flex', marginLeft: 16, fontSize: 30, fontWeight: 800 }, new URL(SITE_URL).hostname)),
+			platformPills(app.platforms.slice(0, 5)),
+			h('div', { display: 'flex', marginTop: 20, fontSize: 24, fontWeight: 800, color: C.blueInk }, HOST),
 		),
 		h('div', { display: 'flex', flexGrow: 1, justifyContent: 'flex-end' }, right),
 	);
@@ -144,10 +163,29 @@ function card(app: App, im: CardImages): ReactNode {
 export async function renderCard(app: App, paths: Paths): Promise<Buffer> {
 	const [icon, shot, site, fonts] = await Promise.all([
 		app.icon ? imageBytes(app.icon, paths.publicDir, app.slug).then((b) => asPng(b, ICON * 2.5, ICON * 2.5)) : undefined,
-		app.image ? imageBytes(app.image, paths.publicDir, app.slug).then((b) => asPng(b, SHOT_W, SHOT_H)) : undefined,
-		readFile(join(paths.publicDir, 'icon-192.png')).then((b) => asPng(b, 48, 48)),
+		app.image ? imageBytes(app.image, paths.publicDir, app.slug).then((b) => asPng(b, SHOT_W, SHOT_H + 40)) : undefined,
+		siteMark(paths.publicDir, 40),
 		latinFonts(paths.fontDir),
 	]);
 	const svg = await satori(card(app, { icon, shot, site }), { width: CARD_WIDTH, height: CARD_HEIGHT, fonts, loadAdditionalAsset: (code, segment) => extraFonts(paths.fontDir, code, segment) });
+	return sharp(Buffer.from(svg)).png().toBuffer();
+}
+
+// The site's own share card, the default image of every page but an app's: the mark, the name, the English lead, every platform NSGo draws on and the address.
+function siteCard(site: string): ReactNode {
+	return h(
+		'div',
+		{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: CARD_WIDTH, height: CARD_HEIGHT, padding: PAD, background: C.bg, backgroundImage: GLOW, fontFamily: 'Inter', color: C.fg },
+		img(site, 120, 120, { borderRadius: 32 }),
+		h('div', { display: 'flex', marginTop: 36 }, wordmark(104, '-0.04em')),
+		h('div', { display: 'flex', marginTop: 20, maxWidth: 900, fontSize: 30, fontWeight: 500, lineHeight: 1.4, color: C.fg2, textAlign: 'center', justifyContent: 'center' }, t('en').hero_p),
+		h('div', { display: 'flex', marginTop: 36 }, platformPills(APP_PLATFORMS, true)),
+		h('div', { display: 'flex', marginTop: 32, fontSize: 26, fontWeight: 800, color: C.blueInk }, HOST),
+	);
+}
+
+export async function renderSiteCard(paths: Paths): Promise<Buffer> {
+	const [site, fonts] = await Promise.all([siteMark(paths.publicDir, 120), latinFonts(paths.fontDir)]);
+	const svg = await satori(siteCard(site), { width: CARD_WIDTH, height: CARD_HEIGHT, fonts, loadAdditionalAsset: (code, segment) => extraFonts(paths.fontDir, code, segment) });
 	return sharp(Buffer.from(svg)).png().toBuffer();
 }

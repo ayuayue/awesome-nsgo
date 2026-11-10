@@ -1,9 +1,10 @@
-import { STATE_DOC, STATE_SOLUTIONS, likeKey, pad2, pick } from '@awesome-nsgo/catalog';
+import { STATE_DOC, STATE_SOLUTIONS, fill, likeKey, pick } from '@awesome-nsgo/catalog';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { Docky, WinBar } from '../components/bits';
 import { SetupLine } from '../components/CopyCmd';
 import { CtaBox, CtaHead } from '../components/Cta';
 import { BarLink, CardHead, CardShot, EntryCard, TagList, cardShotImg, showBy, showDesc, showGrid } from '../components/EntryCard';
+import { GoCode } from '../components/GoCode';
+import { EmptyLanes } from '../components/marks';
 import { useLang, useT } from '../lib/lang';
 import { STATE_BLOCKS, type StateBlock, validateStateSearch } from '../lib/page-search';
 import { pageHead } from '../lib/seo';
@@ -17,8 +18,6 @@ export const Route = createFileRoute('/state')({
 });
 
 type BlockId = StateBlock;
-
-const btnAmber = 'min-h-12 py-0 px-[22px] border-0 rounded-xl bg-amber text-bg font-bold text-[15px]';
 
 function StatePage() {
 	const t = useT();
@@ -35,10 +34,10 @@ function StatePage() {
 
 	return (
 		<section className='page enter gap-10 max-sm:gap-6'>
-			<div className='flex flex-col gap-3.5'>
-				<span className='kicker inline-flex items-center gap-2.5 text-amber'>
-					<span className={`size-2 rounded-full bg-amber ${listed ? '' : 'pulse'}`} />
-					~/STATE · {listed ? t.cat_state_count.replace('{n}', String(STATE_SOLUTIONS.length)) : t.cat_state_badge}
+			<div className='flex flex-col gap-3'>
+				{/* The count once a solution is listed; until then the "wanted" badge, in its warm tone. */}
+				<span className='kicker' data-tone={listed ? undefined : 'dev'}>
+					{listed ? fill(t.cat_state_count, { n: STATE_SOLUTIONS.length }) : t.cat_state_badge}
 				</span>
 				<h1 className='page-h1'>{t.cat_state_name}</h1>
 				{/* Below sm the lead paragraph is left out: on a phone it took four lines ahead of the list, whose heading and cards already say what the page holds. */}
@@ -47,7 +46,7 @@ function StatePage() {
 
 			{listed && (
 				<div className='flex flex-col gap-4'>
-					<h2 className='m-0 text-[26px] font-black'>{t.state_listed_h}</h2>
+					<h2 className='m-0 text-[22px] font-bold tracking-[-0.02em]'>{t.state_listed_h}</h2>
 					<div className={showGrid}>
 						{STATE_SOLUTIONS.map((s, k) => {
 							// As on a plugin card, the install line gives way to an ellipsis before its last path segment, which tells the lines apart.
@@ -88,39 +87,48 @@ function StatePage() {
 			<div className='grid grid-cols-[repeat(auto-fit,minmax(min(100%,420px),1fr))] items-stretch gap-5'>
 				<div className='flex flex-col gap-2.5' role='tablist' aria-label={t.a_builtin}>
 					{blocks.map((b, i) => (
-						<button key={b.id} type='button' role='tab' aria-selected={b.id === block} onClick={() => setBlock(b.id)} className='group flex items-start gap-[18px] rounded-2xl border border-line-2 bg-panel px-6 py-[22px] text-left text-fg transition-[border-color,background] duration-200 ease-[ease] aria-selected:border-cyan aria-selected:bg-cyan/6 max-sm:gap-3.5 max-sm:px-[18px] max-sm:py-[18px]'>
-							<span className='pt-[3px] font-mono text-[13px] text-fg-3 group-aria-selected:text-cyan'>{pad2(i + 1)}</span>
+						<button key={b.id} type='button' role='tab' aria-selected={b.id === block} onClick={() => setBlock(b.id)} className='group flex items-start gap-4 rounded-frame border border-line-2 bg-panel px-5 py-5 text-left text-fg transition-[border-color,background,box-shadow] duration-150 hover:border-line-3 aria-selected:border-blue aria-selected:bg-blue-soft/60 aria-selected:[box-shadow:0_0_0_3px_color-mix(in_srgb,var(--color-blue)_14%,transparent)] max-sm:gap-3.5 max-sm:px-4 max-sm:py-4'>
+							<span className='sk-num'>
+								<span>{i + 1}</span>
+							</span>
 							<span className='flex flex-col gap-1.5'>
-								<span className='text-[19px] font-black'>
-									{b.name} <span className='font-mono text-[12px] font-normal text-fg-3'>{b.kicker}</span>
+								<span className='text-[17px] font-[650]'>
+									{b.name} <span className='font-mono text-[12px] font-normal text-fg-3 group-aria-selected:text-fg-2'>{b.kicker}</span>
 								</span>
 								<span className='text-[14px] leading-[1.65] text-fg-2'>{b.desc}</span>
 							</span>
 						</button>
 					))}
 				</div>
-				<div className='flex flex-col overflow-hidden rounded-2xl border border-line-3 bg-panel' role='tabpanel'>
-					<WinBar label='app.go' size='md' className='panel-bar' />
-					<div className='code flex-auto p-[22px] text-[14px] leading-[1.9] max-sm:p-[18px]'>{current.code}</div>
-					<a href={STATE_DOC} target='_blank' rel='noopener' className='flex min-h-[52px] items-center border-t border-line-2 px-[22px] text-[14px] no-underline max-sm:px-[18px]' lang='en'>
+				{/* The open example as an editor pane: a file tab over the coloured source, and the docs link under it. */}
+				<div className='editor' role='tabpanel'>
+					<div className='editor-bar'>
+						<span className='editor-tab' data-current lang='en'>
+							app.go
+						</span>
+					</div>
+					<div className='code flex-auto p-[22px] text-[13.5px] leading-[1.85] max-sm:p-[18px]'>
+						<GoCode code={current.code} />
+					</div>
+					<a href={STATE_DOC} target='_blank' rel='noopener' className='flex min-h-12 items-center border-t border-line-2 bg-panel px-[22px] text-[14px] font-semibold text-blue-ink no-underline hover:underline focus-visible:rounded-b-frame focus-visible:outline-offset-[-2px] max-sm:px-[18px]' lang='en'>
 						Components and state ↗
 					</a>
 				</div>
 			</div>
 
 			{listed ? (
-				<CtaBox amber>
+				<CtaBox>
 					<CtaHead as='h3' title={t.state_more_h} text={t.state_empty_p} />
-					<button type='button' className={btnAmber} onClick={() => openSubmit('state')}>
+					<button type='button' className='btn-c btn-44' onClick={() => openSubmit('state')}>
 						{t.sub_state}
 					</button>
 				</CtaBox>
 			) : (
-				<div className='bg-[radial-gradient(rgba(255,255,255,0.07)_1px,transparent_1px)] bg-size-[22px_22px] rv flex flex-col items-center gap-4 rounded-[20px] border border-dashed border-amber bg-bg/60 px-7 py-14 text-center max-sm:px-5 max-sm:py-10'>
-					<Docky variant='laptop' />
-					<h2 className='m-0 text-[28px] font-black tracking-[-0.02em] max-sm:text-[24px]'>{t.state_empty_h}</h2>
-					<p className='m-0 text-[15px] leading-[1.75] text-fg-2'>{t.state_empty_p}</p>
-					<button type='button' className={btnAmber} onClick={() => openSubmit('state')}>
+				<div className='rv dots flex flex-col items-center gap-4 rounded-band border border-line bg-soft px-7 py-14 text-center max-sm:px-5 max-sm:py-10'>
+					<EmptyLanes />
+					<h2 className='m-0 text-[24px] font-bold tracking-[-0.02em]'>{t.state_empty_h}</h2>
+					<p className='m-0 max-w-[36em] text-[15px] leading-[1.75] text-fg-2'>{t.state_empty_p}</p>
+					<button type='button' className='btn-c btn-44' onClick={() => openSubmit('state')}>
 						{t.sub_state}
 					</button>
 				</div>

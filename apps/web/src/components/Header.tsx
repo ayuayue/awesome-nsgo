@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useLang, useSetLang, useT } from '../lib/lang';
 import { useSite } from '../lib/site';
 import { switchTheme } from '../lib/theme';
-import { GitHubMark, Logo, SearchIcon } from './bits';
+import { GitHubMark, SearchIcon } from './bits';
+import { SiteMark } from './marks';
 
 // Every section, in the order of the home page's tiles: the header's row, the retro look's menu bar and both footers show them all.
 export const NAV = [
@@ -29,6 +30,9 @@ export function Header({ scrolled }: { scrolled: boolean }) {
 	const [langMenu, setLangMenu] = useState(false);
 	const langRef = useRef<HTMLDivElement>(null);
 	const pathname = useLocation({ select: (l) => l.pathname });
+	// The palette's shortcut, named for the visitor's keyboard; set after hydration, as the server cannot know it.
+	const [mod, setMod] = useState<string>();
+	useEffect(() => setMod(/Mac|iPhone|iPad/.test(navigator.userAgent) ? '⌘' : 'Ctrl'), []);
 
 	// Any navigation closes the mobile menu and the language menu.
 	useEffect(() => {
@@ -55,21 +59,21 @@ export function Header({ scrolled }: { scrolled: boolean }) {
 	return (
 		// While the burger is open on a phone the header scrolls within the screen: it is sticky, so on a landscape phone the panel's last rows (language, look, GitHub) and the language menu would otherwise sit below the screen's bottom edge for good.
 		<header
-			className={`sticky top-0 z-20 border-b border-line bg-bg/82 backdrop-blur-[14px] [transition:box-shadow_0.3s] data-[scrolled=true]:shadow-[0_10px_40px_rgba(0,0,0,0.45)] ${menu ? 'max-md:max-h-dvh max-md:overflow-y-auto max-md:overscroll-contain' : ''}`}
+			className={`sticky top-0 z-20 border-b border-line bg-bg/72 backdrop-blur-[20px] backdrop-saturate-[1.8] [transition:box-shadow_0.2s] data-[scrolled=true]:[box-shadow:var(--sh-1)] ${menu ? 'max-md:max-h-dvh max-md:overflow-y-auto max-md:overscroll-contain' : ''}`}
 			data-scrolled={scrolled}
 		>
-			{/* The brand, the eight sections and the header actions share one row from the burger breakpoint up: the search button is as wide as its label, and below 1288px, before the 1600px container reaches its full width, the brand shows only its logo, the search button drops its label and the gaps tighten, so every language fits one row down to 1100px. Below md (phones) the header is one compact row of the brand, search, submit and the burger: the language, look and GitHub buttons move into the burger's panel, and the gaps, buttons and brand shrink so English still fits at 360px. */}
-			<div className='site-shell mx-auto flex flex-wrap items-center gap-x-5 gap-y-2.5 px-6 py-2.5 max-hdr:gap-x-3.5 max-md:gap-x-1.5 max-md:py-2 max-sm:px-5'>
-				<Link to='/' aria-label={t.a_home} className='flex min-h-11 items-center gap-2.5 p-0 text-fg no-underline max-md:mr-auto max-md:min-h-10 max-md:gap-2 max-md:[&_img]:size-7'>
-					<Logo />
-					<span className='font-display text-[20px] font-extrabold tracking-[-0.035em] max-hdr:nav:hidden max-md:text-[clamp(16px,4.44vw,18px)]'>
-						Awesome <span className='text-cyan'>NSGo</span>
+			{/* The brand, the eight sections and the header actions share one row from the burger breakpoint up: the sections sit in a segmented capsule. The search field is 220px wide with its label only from 1700px, where the container grows to 1440px, as the capsule, the wordmark and the full field overran the 1200px container in English and Japanese; from 1288px to 1700px it is a compact field of the icon and the shortcut (reserving the shortcut's width before hydration fills it in, so nothing shifts), and a round icon button where the search-round variant in styles.css says (below 1288px, with a touch screen's pointer, and in Japanese, whose section names leave no room for the field). Below 1288px, before the container reaches its full width, the brand also shows only its mark and the gaps tighten, so every language fits one row down to 1100px. Below md (phones) the header is one compact row of the brand, search, submit and the burger: the language, look and GitHub buttons move into the burger's panel, and the gaps, buttons and brand shrink so English still fits at 360px. */}
+			<div className='site-shell mx-auto flex min-h-[60px] flex-wrap items-center gap-x-4 gap-y-2.5 px-6 py-2.5 max-hdr:gap-x-3 max-md:gap-x-1.5 max-md:py-2 max-sm:px-5'>
+				<Link to='/' aria-label={t.a_home} className='flex min-h-11 items-center gap-2.5 p-0 text-fg no-underline max-md:mr-auto max-md:min-h-10 max-md:gap-2 max-md:[&_svg]:size-[26px]'>
+					<SiteMark size={28} />
+					<span className='text-[17px] font-bold tracking-[-0.02em] max-hdr:nav:hidden max-md:text-[clamp(16px,4.44vw,17px)]'>
+						Awesome <span className='text-blue-ink'>NSGo</span>
 					</span>
 				</Link>
-				{/* Below the burger breakpoint the nav is a full-width panel on its own row, shown while the burger is open. */}
+				{/* Below the burger breakpoint the nav is a full-width panel on its own row, shown while the burger is open, its rows 48px tall. */}
 				<nav
 					id='sitenav'
-					className={`my-0 mr-auto ml-2 flex flex-wrap gap-0.5 rounded-xl border border-line bg-well p-1 max-nav:order-5 max-nav:m-0 max-nav:w-full ${menu ? 'max-nav:flex-col max-nav:items-stretch' : 'max-nav:hidden'}`}
+					className={`my-0 mr-auto ml-2 flex flex-wrap gap-0.5 rounded-full border border-line-2 bg-soft p-1 max-nav:order-5 max-nav:m-0 max-nav:w-full max-nav:rounded-card max-nav:p-1.5 ${menu ? 'max-nav:flex-col max-nav:items-stretch' : 'max-nav:hidden'}`}
 					data-open={menu}
 					aria-label={t.a_cats}
 				>
@@ -77,7 +81,7 @@ export function Header({ scrolled }: { scrolled: boolean }) {
 						<Link
 							key={n.to}
 							to={n.to}
-							className={`box-border inline-flex min-h-[38px] items-center rounded-lg border-0 bg-transparent px-2.5 py-0 text-[14px] font-medium text-fg-2 no-underline [transition:background_0.15s,color_0.15s] hover:bg-white/6 hover:text-fg data-[status=active]:bg-fg data-[status=active]:font-bold data-[status=active]:text-bg max-nav:min-h-12 max-nav:justify-start`}
+							className='box-border inline-flex min-h-[34px] items-center rounded-full px-3 text-[14px] font-medium whitespace-nowrap text-fg-2 no-underline [transition:background_0.15s,color_0.15s] hover:text-fg data-[status=active]:bg-panel data-[status=active]:font-semibold data-[status=active]:text-fg data-[status=active]:[box-shadow:var(--sh-1),0_0_0_1px_var(--color-line-2)] max-nav:min-h-12 max-nav:justify-start max-nav:rounded-box max-nav:px-3.5 max-nav:data-[status=active]:bg-blue-soft max-nav:data-[status=active]:text-blue-ink max-nav:data-[status=active]:shadow-none'
 							activeOptions={{ exact: true, includeSearch: false }}
 							onClick={() => setMenu(false)}
 						>
@@ -89,12 +93,13 @@ export function Header({ scrolled }: { scrolled: boolean }) {
 				<div className='flex items-center gap-2 max-nav:ml-auto max-md:contents'>
 					<button
 						type='button'
-						className='btn-g flex min-h-11 items-center gap-2.5 rounded-[10px] border border-line-2 bg-well px-3.5 py-0 text-[14px] text-fg-2 hover:border-fg hover:bg-white/4 hover:text-fg max-hdr:min-w-0 max-md:size-10 max-md:min-h-10 max-md:justify-center max-md:px-0'
+						className='btn-g flex h-10 min-h-10 items-center justify-between gap-2 rounded-full border border-line-2 bg-soft px-3.5 text-[14px] text-fg-3 hover:border-line-3 hover:text-fg-2 min-w-[86px] min-[1700px]:min-w-[220px] search-round:size-10 search-round:min-w-0 search-round:justify-center search-round:p-0'
 						onClick={openPalette}
 						aria-label={t.search_label}
 					>
 						<SearchIcon />
-						<span className='flex-auto text-left max-hdr:hidden'>{t.search_btn}</span>
+						<span className='flex-auto text-left max-[1700px]:hidden'>{t.search_btn}</span>
+						{mod && <kbd aria-hidden='true' className='rounded-md border border-line-2 bg-panel px-1.5 py-0.5 font-mono text-[11px] text-fg-3 pointer-coarse:hidden search-round:hidden'>{mod} K</kbd>}
 					</button>
 					{/* At md and up the group dissolves into the actions row; below md it is the burger panel's last row, under the nav. */}
 					<div id='siteacts' className={`md:contents max-md:order-6 max-md:w-full max-md:flex-wrap max-md:items-center max-md:gap-2 ${menu ? 'max-md:flex' : 'max-md:hidden'}`}>
@@ -102,7 +107,7 @@ export function Header({ scrolled }: { scrolled: boolean }) {
 						<div className='relative max-md:contents' ref={langRef}>
 							<button
 								type='button'
-								className='btn-g flex min-h-11 items-center gap-2 rounded-[10px] border border-line-2 bg-well px-3 py-0 text-[13px] font-semibold text-fg hover:border-fg hover:bg-white/4 hover:text-fg'
+								className='btn-g flex h-10 min-h-10 items-center gap-2 rounded-full border border-line-2 bg-panel px-3 text-[13px] font-semibold text-fg-2 hover:border-line-3 hover:bg-soft hover:text-fg'
 								onClick={() => setLangMenu((v) => !v)}
 								aria-haspopup='menu'
 								aria-expanded={langMenu}
@@ -118,7 +123,7 @@ export function Header({ scrolled }: { scrolled: boolean }) {
 							<div
 								role='menu'
 								aria-label={t.lang}
-								className='enter absolute top-[52px] right-0 z-40 min-w-[200px] rounded-[14px] border border-line-3 bg-panel p-1.5 shadow-[0_24px_60px_rgba(0,0,0,0.55)] max-md:static max-md:order-last max-md:min-w-0 max-md:basis-full'
+								className='drop absolute top-[48px] right-0 z-40 min-w-[200px] rounded-menu border border-line-2 bg-raised p-1.5 [box-shadow:var(--sh-3)] max-md:static max-md:order-last max-md:min-w-0 max-md:basis-full'
 								hidden={!langMenu}
 							>
 								{LANGS.map((L) => (
@@ -129,7 +134,7 @@ export function Header({ scrolled }: { scrolled: boolean }) {
 										activeOptions={{ exact: true }}
 										role='menuitemradio'
 										aria-checked={L.code === lang}
-										className='row box-border flex min-h-11 w-full items-center justify-between gap-4 rounded-[9px] border-0 bg-transparent px-3 py-0 text-left text-[14px] font-semibold text-fg no-underline hover:bg-cyan/7 aria-checked:bg-cyan/10 aria-checked:text-cyan'
+										className='row box-border flex min-h-11 w-full items-center justify-between gap-4 rounded-[9px] px-3 text-left text-[14px] font-medium text-fg no-underline hover:bg-soft aria-checked:bg-blue-soft aria-checked:font-semibold aria-checked:text-blue-ink'
 										lang={L.code}
 										hrefLang={L.code}
 										onClick={(e) => {
@@ -142,15 +147,16 @@ export function Header({ scrolled }: { scrolled: boolean }) {
 										}}
 									>
 										<span>{L.native}</span>
-										<span className='font-mono text-[11px] text-fg-3'>{L.code}</span>
+										{/* fg-2, not fg-3: the checked row's blue-soft fill would drop meta text below 4.5:1. */}
+										<span className='text-[11.5px] text-fg-2'>{L.code}</span>
 									</Link>
 								))}
 							</div>
 						</div>
-						{/* Square, in the language button's frame: the GitHub link and the retro theme switch. Icon only: with a label the header ran onto a second row in Japanese at 1440px. The name is in aria-label and the tooltip. */}
+						{/* Round, in the language button's frame: the GitHub link and the retro theme switch. Icon only: with a label the header ran onto a second row in Japanese at 1440px. The name is in aria-label and the tooltip. */}
 						<button
 							type='button'
-							className='btn-g box-border flex size-11 flex-none items-center justify-center rounded-[10px] border border-line-2 bg-well text-fg hover:border-fg hover:bg-white/4 hover:text-fg'
+							className='btn-g box-border flex size-10 min-h-10 flex-none items-center justify-center rounded-full border border-line-2 bg-panel text-fg-2 hover:border-line-3 hover:bg-soft hover:text-fg'
 							onClick={() => switchTheme('retro')}
 							aria-label={`${t.a_theme}: ${t.theme_retro}`}
 							title={t.theme_retro}
@@ -162,7 +168,7 @@ export function Header({ scrolled }: { scrolled: boolean }) {
 						</button>
 						{/* The site's own repository; "GitHub" reads the same in every language, so it needs no translation. */}
 						<a
-							className='btn-g box-border flex size-11 flex-none items-center justify-center rounded-[10px] border border-line-2 bg-well text-fg hover:border-fg hover:bg-white/4 hover:text-fg'
+							className='btn-g box-border flex size-10 min-h-10 flex-none items-center justify-center rounded-full border border-line-2 bg-panel text-fg-2 hover:border-line-3 hover:bg-soft hover:text-fg'
 							href={SITE_REPO}
 							target='_blank'
 							rel='noopener'
@@ -172,12 +178,12 @@ export function Header({ scrolled }: { scrolled: boolean }) {
 							<GitHubMark size={18} />
 						</a>
 					</div>
-					<button type='button' className='btn-c min-h-11 rounded-[10px] px-4 py-0 text-[14px] whitespace-nowrap max-md:min-h-10 max-md:px-3' onClick={() => openSubmit()}>
+					<button type='button' className='btn-c h-10 min-h-10 rounded-full px-4 text-[14px] whitespace-nowrap max-md:px-3' onClick={() => openSubmit()}>
 						{t.submit_short}
 					</button>
 					<button
 						type='button'
-						className='btn-g hidden size-11 items-center justify-center rounded-[10px] border border-line-2 bg-well text-fg hover:border-fg hover:bg-white/4 hover:text-fg max-nav:flex max-md:size-10'
+						className='btn-g hidden size-10 min-h-10 flex-none items-center justify-center rounded-full border border-line-2 bg-panel text-fg-2 hover:border-line-3 hover:bg-soft hover:text-fg max-nav:flex'
 						onClick={() => setMenu((v) => !v)}
 						aria-expanded={menu}
 						aria-controls='sitenav siteacts'

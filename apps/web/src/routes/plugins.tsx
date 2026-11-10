@@ -1,6 +1,5 @@
 import { CLI_CMDS, COMMUNITY_PLUGINS, HAS_SCORES, PLUGINS, PLUGINS_DOC, type Plugin, type PluginSurface, compareByScore, fill, likeKey, pick, pluginPath } from '@awesome-nsgo/catalog';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { WinBar } from '../components/bits';
 import { CopyButton, SetupLine, cmdRow } from '../components/CopyCmd';
 import { CtaBox, CtaHead } from '../components/Cta';
 import { BarLink, CardHead, EntryCard, TagList, showDesc } from '../components/EntryCard';
@@ -14,8 +13,11 @@ import { useSite } from '../lib/site';
 // The letter tile's colour cycles by position, as the showcase's tiles do.
 const TONES = ['tone-0', 'tone-1', 'tone-2'] as const;
 
-// The colour of a plugin's tag of the kind of app it serves.
-const SURF_TONE: Record<PluginSurface, string> = { tsx: 'text-amber', go: 'text-cyan', both: 'text-fg-2' };
+// The pill of a plugin's tag of the kind of app it serves, drawn as an app's kind tag is (styles/primitives.css).
+const SURF_TONE: Record<PluginSurface, string> = { tsx: 'kind-tsx', go: 'kind-go', both: 'kind-both' };
+
+// A CLI command's row: the command row of an entry card, on the panel colour, as it sits on the soft band of the command line's box.
+const cliRow = cmdRow.replace('bg-soft', 'bg-panel');
 
 // `import "github.com/oneo-me/nsgo/base/datatable"`, split before its last two segments.
 function goLine(path: string): { head: string; tail: string } {
@@ -53,7 +55,7 @@ function PluginsPage() {
 	// The community's plugins, under the same filter, after the official ones and the call to write one.
 	const community = COMMUNITY_PLUGINS.filter((p) => fits(p.surface));
 	const sourcePlugins = source === 'official' ? PLUGINS : source === 'community' ? COMMUNITY_PLUGINS : [...PLUGINS, ...COMMUNITY_PLUGINS];
-	const sourceKicker = source === 'all' ? 'PLUGINS' : source === 'official' ? 'OFFICIAL' : 'COMMUNITY';
+	const sourceLabel = source === 'all' ? t.all : source === 'official' ? t.plug_official : t.plug_community;
 	// Most liked or highest score first; equal likes keep the docs' order, and equal totals are ordered by the unrounded sum, then the raw active weeks and release days, then the docs' order (compareByScore). A plugin without a score yet stays in its docs order.
 	for (const list of [shown, community]) {
 		if (sort === 'likes') list.sort((a, b) => (counts[likeKey.plugin(b)] ?? 0) - (counts[likeKey.plugin(a)] ?? 0));
@@ -82,7 +84,7 @@ function PluginsPage() {
 							</span>
 						}
 					>
-						<span className={`inline-block self-start rounded-full border border-current px-2 py-0.5 align-middle font-mono text-[11px] font-semibold tracking-normal ${SURF_TONE[p.surface]}`}>{surfLabel[p.surface]}</span>
+						<span className={`kind-tag ${SURF_TONE[p.surface]}`}>{surfLabel[p.surface]}</span>
 					</CardHead>
 					<p className={showDesc}>{pick(p.desc, lang)}</p>
 					{/* A plugin's setup lines: the Go import and, for a plugin that comes with one, its npm package. */}
@@ -100,8 +102,8 @@ function PluginsPage() {
 	};
 	return (
 		<section className='page enter gap-10 max-sm:gap-6'>
-			<div className='flex flex-col gap-3.5'>
-				<span className='kicker' lang='en'>~/PLUGINS · {sourcePlugins.length} {sourceKicker}</span>
+			<div className='flex flex-col gap-3'>
+				<span className='kicker'>{`${sourceLabel} · ${sourcePlugins.length}`}</span>
 				<h1 className='page-h1'>{t.nav_plugins}</h1>
 				{/* Below sm the lead paragraph is left out: on a phone it took four lines ahead of the list, whose heading and cards already say what the page holds. */}
 				<p className='page-p max-sm:hidden'>{t.plug_p}</p>
@@ -114,7 +116,7 @@ function PluginsPage() {
 						</FilterChip>
 					))}
 				</FilterChips>
-				<span className='hidden h-6 w-px bg-line-3 md:block' aria-hidden='true' />
+				<span className='hidden h-6 w-px bg-line-2 md:block' aria-hidden='true' />
 				<FilterChips label={t.nav_plugins}>
 					{(['all', 'official', 'community'] as const).map((key) => {
 						const count = key === 'all' ? PLUGINS.length + COMMUNITY_PLUGINS.length : key === 'official' ? PLUGINS.length : COMMUNITY_PLUGINS.length;
@@ -140,27 +142,25 @@ function PluginsPage() {
 				<>
 					{/* With no official package under the filter (or none listed yet), a line says so rather than an empty grid. */}
 					{shown.length > 0 ? <div className='grid grid-cols-[repeat(auto-fill,minmax(min(100%,320px),1fr))] gap-4'>{shown.map(card)}</div> : <p className='m-0 text-[15px] text-fg-2'>{t.plug_none}</p>}
-					<div className='rv overflow-hidden rounded-[18px] border border-line-3 bg-panel'>
-						<WinBar label='nsgo' size='md' className='panel-bar' />
-						<div className='grid grid-cols-[repeat(auto-fit,minmax(min(100%,360px),1fr))] items-center gap-6 p-6 max-sm:p-[18px]'>
-							<div className='flex flex-col gap-2'>
-								<h2 className='m-0 text-[24px] font-black'>{t.tool_h}</h2>
-								<p className='m-0 text-[15px] leading-[1.7] text-fg-2'>{t.tool_p}</p>
-							</div>
-							<div className='flex flex-col gap-2'>
-								{CLI_CMDS.map((cmd, i) => {
-									const key = i === 0 ? 'cmd0' : 'cmd1';
-									return (
-										<div key={cmd} className={cmdRow}>
-											<span className='flex-auto overflow-x-auto font-mono text-[14px] whitespace-nowrap text-fg'>
-												<span className='text-cyan'>❯ </span>
-												{cmd}
-											</span>
-											<CopyButton text={cmd} copyKey={key} label={t.a_copy_cmd} />
-										</div>
-									);
-								})}
-							</div>
+					{/* The nsgo command line: what it does beside its commands, each with a $ prompt and a copy button. */}
+					<div className='rv grid grid-cols-[repeat(auto-fit,minmax(min(100%,360px),1fr))] items-center gap-6 rounded-band border border-line bg-soft p-7 max-sm:p-5'>
+						<div className='flex flex-col gap-2'>
+							<h2 className='m-0 text-[22px] font-bold tracking-[-0.02em]'>{t.tool_h}</h2>
+							<p className='m-0 text-[15px] leading-[1.7] text-fg-2'>{t.tool_p}</p>
+						</div>
+						<div className='flex flex-col gap-2'>
+							{CLI_CMDS.map((cmd, i) => {
+								const key = i === 0 ? 'cmd0' : 'cmd1';
+								return (
+									<div key={cmd} className={cliRow}>
+										<span className='flex-auto overflow-x-auto font-mono text-[14px] whitespace-nowrap text-fg'>
+											<span className='cmd-p'>$ </span>
+											{cmd}
+										</span>
+										<CopyButton text={cmd} copyKey={key} label={t.a_copy_cmd} />
+									</div>
+								);
+							})}
 						</div>
 					</div>
 				</>

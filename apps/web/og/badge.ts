@@ -1,26 +1,25 @@
-// The README badge app authors can add to their project (/badge.svg): the site's icon and name, and "listed". Drawn with satori, which turns the text into paths, so the badge looks the same wherever it is shown, whatever fonts the reader has.
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+// The README badge app authors can add to their project (/badge.svg): the site's mark and name on a pale blue field, and "listed" on the button gradient. Drawn with satori, which turns the text into paths, so the badge looks the same wherever it is shown, whatever fonts the reader has.
 import { createElement } from 'react';
 import satori from 'satori';
-import { type Paths, asPng, latinFonts } from './card';
+import { type Paths, latinFonts, siteMark } from './card';
 
 export const BADGE_HEIGHT = 28;
 
 export async function renderBadge(paths: Paths): Promise<string> {
-	const [icon, fonts] = await Promise.all([readFile(join(paths.publicDir, 'icon-192.png')).then((b) => asPng(b, 18, 18)), latinFonts(paths.fontDir)]);
+	const [mark, fonts] = await Promise.all([siteMark(paths.publicDir, 18), latinFonts(paths.fontDir)]);
 	const h = createElement;
+	// The 1 px border sits inside the 28 px height, so each half is 26 px tall.
 	const badge = h(
 		'div',
-		{ style: { display: 'flex', height: BADGE_HEIGHT, borderRadius: 6, overflow: 'hidden', fontFamily: 'Bricolage Grotesque' } },
+		{ style: { display: 'flex', height: BADGE_HEIGHT, borderRadius: 6, overflow: 'hidden', border: '1px solid #cfe0f7', fontFamily: 'Inter' } },
 		h(
 			'div',
-			{ style: { display: 'flex', alignItems: 'center', height: '100%', padding: '0 9px 0 5px', background: '#0b0d10', color: '#eef2f5', fontSize: 14, fontWeight: 800, letterSpacing: '-0.02em' } },
-			h('img', { src: icon, width: 18, height: 18, style: { borderRadius: 4, marginRight: 6 } }),
+			{ style: { display: 'flex', alignItems: 'center', height: '100%', padding: '0 9px 0 5px', background: '#eaf3ff', color: '#0c0d10', fontSize: 13, fontWeight: 800, letterSpacing: '-0.01em' } },
+			h('img', { src: mark, width: 18, height: 18, style: { borderRadius: 5, marginRight: 6 } }),
 			'Awesome ',
-			h('span', { style: { color: '#3fd3f5', marginLeft: 4 } }, 'NSGo'),
+			h('span', { style: { color: '#0062cc', marginLeft: 4 } }, 'NSGo'),
 		),
-		h('div', { style: { display: 'flex', alignItems: 'center', height: '100%', padding: '0 9px', background: '#3fd3f5', color: '#0b0d10', fontFamily: 'JetBrains Mono', fontSize: 12, fontWeight: 700 } }, 'listed'),
+		h('div', { style: { display: 'flex', alignItems: 'center', height: '100%', padding: '0 10px', background: 'linear-gradient(135deg, #1a73e8, #0058c4)', color: '#ffffff', fontSize: 12, fontWeight: 800 } }, 'listed'),
 	);
 	return satori(badge, { height: BADGE_HEIGHT, fonts });
 }

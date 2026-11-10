@@ -1,4 +1,4 @@
-/* The like and score buttons and the score's chip, status bar and breakdown (components/Like.tsx, components/Score.tsx). They stay named classes because both looks render these components: the retro look draws the same class names in retro/retro.css, and each look's stylesheet draws its own. The like button's classes are passed by the original look's pages (like-btn, and like-end to push it to the end of a card's head).
+/* The like and score buttons and the score's chip, footer row and breakdown (components/Like.tsx, components/Score.tsx). They stay named classes because both looks render these components: the retro look draws the same class names in retro/retro.css, and each look's stylesheet draws its own. The like button's classes are passed by the original look's pages (like-btn, like-float over a screenshot, and like-end to push it to the end of a card's head).
 
 Below md the buttons grow to 40px, the smallest touch target the phone layout allows. */
 /* Likes (components/Like.tsx): a heart and a count, on every entry card and the app page. */
@@ -8,30 +8,35 @@ Below md the buttons grow to 40px, the smallest touch target the phone layout al
 	gap: 6px;
 	min-height: 32px;
 	padding: 0 10px;
-	border: 1px solid var(--color-line-3);
+	border: 1px solid var(--color-line-2);
 	border-radius: 999px;
-	background: var(--color-bg);
+	background: var(--color-panel);
 	color: var(--color-fg-2);
-	font-family: var(--font-mono);
-	font-size: 13px;
-	font-weight: 600;
+	font: 600 13px var(--font-sans);
+	font-variant-numeric: tabular-nums;
 	cursor: pointer;
-	transition: color 0.15s, border-color 0.15s, transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
+	transition: color 0.15s, border-color 0.15s, background 0.15s, transform 0.15s ease;
 	@variant max-md {
 		min-height: 40px;
 	}
 }
 .like-btn:hover {
-	color: #ff6b8b;
-	border-color: #ff6b8b;
+	color: var(--color-like);
+	border-color: color-mix(in srgb, var(--color-like) 45%, transparent);
 }
 .like-btn[aria-pressed='true'] {
-	color: #ff6b8b;
-	border-color: rgba(255, 107, 139, 0.55);
-	background: rgba(255, 107, 139, 0.1);
+	color: var(--color-like);
+	border-color: color-mix(in srgb, var(--color-like) 45%, transparent);
+	background: var(--color-like-soft);
 }
 .like-btn:disabled {
 	cursor: default;
+}
+/* The like button laid over a screenshot: a translucent panel that blurs what is behind it. */
+.like-float {
+	background: color-mix(in srgb, var(--color-panel) 86%, transparent);
+	-webkit-backdrop-filter: blur(8px);
+	backdrop-filter: blur(8px);
 }
 .like-n:empty {
 	display: none;
@@ -39,17 +44,16 @@ Below md the buttons grow to 40px, the smallest touch target the phone layout al
 .like-end {
 	margin-left: auto;
 }
-/* Scores (components/Score.tsx): the total as a small chip in a neutral tone (no star, no red or green), a button beside the like button that opens the breakdown in a popover, and the breakdown, each signal's points on a meter. */
+/* Scores (components/Score.tsx): the total as a small chip with a dot in a shade of the site's blue (no star, no red or green), a button beside the like button that opens the breakdown in a popover, and the breakdown, each signal's points on a meter. */
 
 .score-chip {
 	display: inline-flex;
 	flex: none;
 	align-items: center;
 	gap: 6px;
-	font-family: var(--font-mono);
 	font-variant-numeric: tabular-nums;
 }
-/* A dot in the band's colour (scoreTier): five cool-toned bands make close scores easier to distinguish without turning the score into a warning light. */
+/* A dot in the band's colour (scoreTier): the higher the band, the more of the blue, so close scores stay distinguishable without turning the score into a warning light. */
 .score-chip::before {
 	content: '';
 	width: 7px;
@@ -58,20 +62,20 @@ Below md the buttons grow to 40px, the smallest touch target the phone layout al
 	background: var(--color-fg-3);
 }
 .score-chip[data-tier='top']::before {
-	background: var(--color-green);
+	background: var(--color-blue);
 }
 .score-chip[data-tier='hi']::before {
-	background: var(--color-cyan);
+	background: color-mix(in srgb, var(--color-blue) 70%, var(--color-fg-3));
 }
 .score-chip[data-tier='mid']::before {
-	background: color-mix(in srgb, var(--color-cyan) 72%, var(--color-fg-3));
+	background: color-mix(in srgb, var(--color-blue) 40%, var(--color-fg-3));
 }
 .score-chip[data-tier='lo']::before {
-	background: color-mix(in srgb, var(--color-cyan) 36%, var(--color-fg-3));
+	background: var(--color-fg-3);
 }
 .score-chip-k {
-	font-family: var(--font-display);
-	font-weight: 600;
+	font-family: var(--font-sans);
+	font-weight: 500;
 	color: var(--color-fg-3);
 }
 /* The button that opens the breakdown, drawn as the like button beside it is; it keeps its width, so the name beside it gives way rather than the badge. */
@@ -82,12 +86,11 @@ Below md the buttons grow to 40px, the smallest touch target the phone layout al
 	align-items: center;
 	min-height: 32px;
 	padding: 0 10px;
-	border: 1px solid var(--color-line-3);
+	border: 1px solid var(--color-line-2);
 	border-radius: 999px;
-	background: var(--color-bg);
+	background: var(--color-panel);
 	color: var(--color-fg-2);
-	font-size: 13px;
-	font-weight: 600;
+	font: 600 13px var(--font-sans);
 	cursor: pointer;
 	transition: color 0.15s, border-color 0.15s;
 	@variant max-md {
@@ -96,68 +99,69 @@ Below md the buttons grow to 40px, the smallest touch target the phone layout al
 }
 .score-btn:hover {
 	color: var(--color-fg);
-	border-color: var(--color-fg-3);
+	border-color: var(--color-line-3);
 }
 .score-btn:focus-visible {
-	outline: 2px solid var(--color-cyan);
+	outline: 2px solid var(--color-blue);
 	outline-offset: 2px;
 }
-/* A showcase card's score as the window's status bar, the twin of its title bar: the word, a thin bar as long as the score, and the total. */
+/* A showcase card's score as a card's footer row: the word, a thin meter as long as the score, and the total. */
 .score-bar {
 	display: flex;
 	flex: none;
 	align-items: center;
 	gap: 10px;
-	height: 30px;
-	padding: 0 14px;
-	border-top: 1px solid var(--color-line-2);
-	background: var(--color-bar);
-	font-family: var(--font-mono);
-	font-size: 11px;
+	height: 40px;
+	padding: 0 20px;
+	border-top: 1px solid var(--color-line);
+	background: transparent;
+	font: 500 12px var(--font-sans);
 	color: var(--color-fg-3);
 	font-variant-numeric: tabular-nums;
+	@variant max-sm {
+		padding: 0 16px;
+	}
 }
 .score-bar-track {
 	flex: 1 1 auto;
 	height: 4px;
-	border-radius: 2px;
+	border-radius: 999px;
 	background: var(--color-line-2);
 	overflow: hidden;
 }
 .score-bar-fill {
 	display: block;
 	height: 100%;
-	border-radius: 2px;
+	border-radius: 999px;
 	background: var(--color-fg-3);
 }
 .score-bar[data-tier='top'] .score-bar-fill {
-	background: var(--color-green);
+	background: var(--color-blue);
 }
 .score-bar[data-tier='hi'] .score-bar-fill {
-	background: var(--color-cyan);
+	background: color-mix(in srgb, var(--color-blue) 70%, var(--color-fg-3));
 }
 .score-bar[data-tier='mid'] .score-bar-fill {
-	background: color-mix(in srgb, var(--color-cyan) 72%, var(--color-fg-3));
+	background: color-mix(in srgb, var(--color-blue) 40%, var(--color-fg-3));
 }
 .score-bar[data-tier='lo'] .score-bar-fill {
-	background: color-mix(in srgb, var(--color-cyan) 36%, var(--color-fg-3));
+	background: var(--color-fg-3);
 }
 .score-bar-n {
-	font-weight: 700;
+	font-weight: 600;
 	color: var(--color-fg-2);
 }
 .score-bar-max {
 	font-weight: 400;
 	color: var(--color-fg-3);
 }
-.score-total[data-tier='top'] {
-	color: var(--color-green);
-}
+.score-total[data-tier='top'],
 .score-total[data-tier='hi'] {
-	color: var(--color-cyan);
+	color: var(--color-blue-ink);
 }
-.score-total[data-tier='mid'] {
-	color: color-mix(in srgb, var(--color-cyan) 72%, var(--color-fg));
+.score-total[data-tier='mid'],
+.score-total[data-tier='lo'] {
+	color: var(--color-fg);
 }
 /* The popover sits in the top layer, centred in the window by the browser. */
 .score-pop {
@@ -166,13 +170,13 @@ Below md the buttons grow to 40px, the smallest touch target the phone layout al
 	max-height: calc(100dvh - 32px);
 	padding: 22px;
 	border: 1px solid var(--color-line-2);
-	border-radius: 14px;
-	background: var(--color-panel);
+	border-radius: var(--radius-frame);
+	background: var(--color-raised);
 	color: var(--color-fg);
-	box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+	box-shadow: var(--sh-3);
 }
 .score-pop::backdrop {
-	background: rgba(0, 0, 0, 0.45);
+	background: var(--color-scrim);
 }
 .score-x {
 	position: absolute;
@@ -181,7 +185,7 @@ Below md the buttons grow to 40px, the smallest touch target the phone layout al
 	width: 32px;
 	height: 32px;
 	border: 0;
-	border-radius: 8px;
+	border-radius: 999px;
 	background: none;
 	color: var(--color-fg-3);
 	font-size: 20px;
@@ -194,7 +198,7 @@ Below md the buttons grow to 40px, the smallest touch target the phone layout al
 	}
 }
 .score-x:hover {
-	background: var(--color-line);
+	background: var(--color-soft);
 	color: var(--color-fg);
 }
 .score-pop .score-h {
@@ -214,18 +218,14 @@ Below md the buttons grow to 40px, the smallest touch target the phone layout al
 	align-items: baseline;
 	justify-content: space-between;
 	gap: 12px;
-	font-family: var(--font-mono);
-	font-size: 12px;
-	font-weight: 400;
-	color: var(--color-fg-3);
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--color-fg-2);
 }
 .score-total {
-	font-family: var(--font-display);
 	font-size: 26px;
 	font-weight: 800;
-	letter-spacing: 0;
+	letter-spacing: -0.02em;
 	color: var(--color-fg);
 	font-variant-numeric: tabular-nums;
 }
@@ -252,17 +252,17 @@ Below md the buttons grow to 40px, the smallest touch target the phone layout al
 }
 .score-neu {
 	padding: 0 7px;
-	border: 1px dashed var(--color-fg-3);
+	border: 1px dashed var(--color-line-3);
 	border-radius: 999px;
 	color: var(--color-fg-3);
-	font-family: var(--font-mono);
-	font-size: 11px;
+	font-size: 11.5px;
+	font-weight: 500;
 	line-height: 18px;
 }
 .score-of {
 	color: var(--color-fg-2);
-	font-family: var(--font-mono);
 	font-size: 13px;
+	font-weight: 600;
 	font-variant-numeric: tabular-nums;
 }
 .score-meter {
@@ -284,11 +284,11 @@ Below md the buttons grow to 40px, the smallest touch target the phone layout al
 }
 .score-meter::-webkit-meter-optimum-value {
 	border-radius: 999px;
-	background: var(--color-cyan);
+	background: var(--color-blue);
 }
 .score-meter::-moz-meter-bar {
 	border-radius: 999px;
-	background: var(--color-cyan);
+	background: var(--color-blue);
 }
 /* A signal counted at the neutral value was not measured, so its bar is greyed. */
 .score-row-neu .score-meter::-webkit-meter-optimum-value {
@@ -312,7 +312,7 @@ Below md the buttons grow to 40px, the smallest touch target the phone layout al
 	line-height: 1.6;
 }
 .score-arch {
-	color: var(--color-amber);
+	color: var(--color-dev);
 }
 .score-about {
 	color: var(--color-fg-2);
@@ -324,4 +324,7 @@ Below md the buttons grow to 40px, the smallest touch target the phone layout al
 	display: flex;
 	flex-wrap: wrap;
 	gap: 6px 16px;
+}
+.score-links a {
+	color: var(--color-blue-ink);
 }
