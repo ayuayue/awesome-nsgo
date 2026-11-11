@@ -3,6 +3,8 @@
 [![Website](https://img.shields.io/badge/website-awesomensgo.dev-007aff)](https://awesomensgo.dev)
 [![CI](https://github.com/yldm-tech/awesome-nsgo/actions/workflows/ci.yml/badge.svg)](https://github.com/yldm-tech/awesome-nsgo/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/yldm-tech/awesome-nsgo)](LICENSE)
+[![X](https://img.shields.io/badge/X-%40suzukaze__haduki-000000?logo=x&logoColor=white)](https://x.com/suzukaze_haduki)
+[![GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/houko)
 
 [NSGo](https://github.com/oneo-me/nsgo) 관련 앱, 패키지, 컴포넌트, 문서를 한 사이트에 모았습니다: **[awesomensgo.dev](https://awesomensgo.dev)**. NSGo는 [ONEO](https://github.com/oneo-me)가 만드는, Go를 백엔드로 하는 크로스 플랫폼 네이티브 UI 엔진입니다. 앱 로직, 반응형 그래프, 레이아웃이 Go에서 돌아가며, 앱은 Go나 TSX로 한 번만 작성하면 됩니다. iOS와 App Clip, tvOS, watchOS, Android, macOS, Windows, Linux, 웹에서는 각 플랫폼 고유의 네이티브 뷰로 그리고, Go 앱은 WeChat, QQ, Alipay, Douyin 미니 프로그램에서도 실행됩니다. NSGo는 아직 초기 단계로, 릴리스도 안정된 API도 없습니다.
 

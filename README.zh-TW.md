@@ -3,6 +3,8 @@
 [![Website](https://img.shields.io/badge/website-awesomensgo.dev-007aff)](https://awesomensgo.dev)
 [![CI](https://github.com/yldm-tech/awesome-nsgo/actions/workflows/ci.yml/badge.svg)](https://github.com/yldm-tech/awesome-nsgo/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/yldm-tech/awesome-nsgo)](LICENSE)
+[![X](https://img.shields.io/badge/X-%40suzukaze__haduki-000000?logo=x&logoColor=white)](https://x.com/suzukaze_haduki)
+[![GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/houko)
 
 把圍繞 [NSGo](https://github.com/oneo-me/nsgo) 的應用、套件、元件和文件收集在一個網站裡：**[awesomensgo.dev](https://awesomensgo.dev)**。NSGo 是 [ONEO](https://github.com/oneo-me) 開發、以 Go 為後端的跨平台原生 UI 引擎：應用邏輯、響應式圖和版面配置都在 Go 中執行，應用用 Go 或 TSX 寫一次即可。它在 iOS 及其 App Clip、tvOS、watchOS、Android、macOS、Windows、Linux 和 Web 上以各平台自己的原生視圖繪製，Go 應用還能在微信、QQ、支付寶和抖音小程式裡執行。NSGo 仍在早期階段，尚未發布正式版本，也沒有穩定的 API。
 

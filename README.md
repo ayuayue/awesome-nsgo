@@ -3,6 +3,8 @@
 [![Website](https://img.shields.io/badge/website-awesomensgo.dev-007aff)](https://awesomensgo.dev)
 [![CI](https://github.com/yldm-tech/awesome-nsgo/actions/workflows/ci.yml/badge.svg)](https://github.com/yldm-tech/awesome-nsgo/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/yldm-tech/awesome-nsgo)](LICENSE)
+[![X](https://img.shields.io/badge/X-%40suzukaze__haduki-000000?logo=x&logoColor=white)](https://x.com/suzukaze_haduki)
+[![GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/houko)
 
 The apps, packages, components and guides around [NSGo](https://github.com/oneo-me/nsgo), collected on one site: **[awesomensgo.dev](https://awesomensgo.dev)**. NSGo is a cross-platform native UI engine with a Go backend, made by [ONEO](https://github.com/oneo-me): app logic, the reactive graph and layout run in Go, and you write an app once in Go or TSX. It draws with each platform's own views on iOS and its App Clips, tvOS, watchOS, Android, macOS, Windows, Linux and the web, and Go apps also run in WeChat, QQ, Alipay and Douyin mini programs. NSGo is early, with no release or stable API yet.
 

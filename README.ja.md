@@ -3,6 +3,8 @@
 [![Website](https://img.shields.io/badge/website-awesomensgo.dev-007aff)](https://awesomensgo.dev)
 [![CI](https://github.com/yldm-tech/awesome-nsgo/actions/workflows/ci.yml/badge.svg)](https://github.com/yldm-tech/awesome-nsgo/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/yldm-tech/awesome-nsgo)](LICENSE)
+[![X](https://img.shields.io/badge/X-%40suzukaze__haduki-000000?logo=x&logoColor=white)](https://x.com/suzukaze_haduki)
+[![GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/houko)
 
 [NSGo](https://github.com/oneo-me/nsgo) まわりのアプリ、パッケージ、コンポーネント、ドキュメントをひとつのサイトに集めました：**[awesomensgo.dev](https://awesomensgo.dev)**。NSGo は [ONEO](https://github.com/oneo-me) が開発している、Go をバックエンドにしたクロスプラットフォームのネイティブ UI エンジンです。アプリのロジック、リアクティブグラフ、レイアウトは Go で動き、アプリは Go か TSX で一度書くだけです。iOS とその App Clip、tvOS、watchOS、Android、macOS、Windows、Linux、Web では各プラットフォーム自身のネイティブビューで描画し、Go のアプリは WeChat、QQ、Alipay、Douyin のミニプログラムでも動きます。NSGo はまだ初期段階で、リリースも安定した API もありません。
 
