@@ -175,7 +175,7 @@
 	z-index: 1;
 	padding: 1.5px;
 	border-radius: calc(var(--radius-card) + 1px);
-	background: conic-gradient(from var(--spin), transparent 0deg, transparent 200deg, #4da3ff 260deg, #8b6cff 300deg, #22d3ee 330deg, transparent 360deg);
+	background: conic-gradient(from var(--spin), transparent 0deg, transparent 200deg, var(--color-fg) 300deg, transparent 360deg);
 	-webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
 	-webkit-mask-composite: xor;
 	mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
@@ -325,7 +325,7 @@
 	left: 0;
 	right: 0;
 	height: 1px;
-	background: linear-gradient(90deg, transparent, var(--color-blue) 30%, #8b6cff 55%, #22d3ee 75%, transparent);
-	opacity: 0.55;
+	background: linear-gradient(90deg, transparent, var(--color-fg) 50%, transparent);
+	opacity: 0.12;
 	pointer-events: none;
 }

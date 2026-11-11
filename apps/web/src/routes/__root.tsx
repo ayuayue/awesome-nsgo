@@ -42,7 +42,7 @@ export const Route = createRootRoute({
 				? [{ name: 'theme-color', content: '#00a6d4' }, { name: 'color-scheme', content: 'light' }]
 				: [
 						{ name: 'theme-color', media: '(prefers-color-scheme: light)', content: '#ffffff' },
-						{ name: 'theme-color', media: '(prefers-color-scheme: dark)', content: '#0b0c0f' },
+						{ name: 'theme-color', media: '(prefers-color-scheme: dark)', content: '#0a0a0a' },
 						{ name: 'color-scheme', content: 'light dark' },
 					]),
 			...(originTrial ? [{ httpEquiv: 'origin-trial', content: originTrial }] : []),
@@ -57,7 +57,15 @@ export const Route = createRootRoute({
 			{ rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
 			{ rel: 'manifest', href: '/site.webmanifest' },
 			// Each look loads only its own stylesheet. The original stylesheet is preloaded and applied by the inline loader below so it does not block first paint; it uses the system's fonts, so nothing else is fetched.
-			...(retro ? [{ rel: 'stylesheet', href: retroStyles }] : [{ rel: 'preload', as: 'style', href: styles }]),
+			...(retro
+				? [{ rel: 'stylesheet', href: retroStyles }]
+				: [
+						{ rel: 'preload', as: 'style', href: styles },
+						// The display face (Space Grotesk, Latin only) and the code face (JetBrains Mono); display=swap keeps the system face until they arrive.
+						{ rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+						{ rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' as const },
+						{ rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap' },
+					]),
 		],
 		};
 	},

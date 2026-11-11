@@ -24,6 +24,7 @@ What utilities cannot say, or what many pages share and adjust by class, is kept
 @import './styles/primitives.css' layer(components);
 @import './styles/score.css' layer(components);
 @import './styles/backdrop.css' layer(components);
+@import './styles/home.css' layer(components);
 @import './styles/motion.css' layer(components);
 
 /* Only the site's own palette, light by default: Tailwind's default colours are cleared so every colour in a component is one of these. Static, as the stylesheets under styles/ read them as variables too. Text in blue uses blue-ink; blue itself is for icons, meters, focus rings and selected borders. */
@@ -32,21 +33,22 @@ What utilities cannot say, or what many pages share and adjust by class, is kept
 	--color-white: #ffffff;
 	--color-black: #000000;
 	--color-bg: #ffffff;
-	--color-soft: #f5f6f8;
+	--color-soft: #fafafa;
 	--color-panel: #ffffff;
 	--color-raised: #ffffff;
-	--color-line: #eceef1;
-	--color-line-2: #e1e3e8;
-	--color-line-3: #d0d3da;
-	--color-field: #868b95;
-	--color-fg: #0c0d10;
-	--color-fg-2: #5b606a;
-	--color-fg-3: #6b707a;
-	--color-blue: #007aff;
-	--color-blue-ink: #0062cc;
-	--color-blue-soft: #eaf3ff;
-	--color-dev: #9a5b00;
-	--color-dev-soft: #fff4e5;
+	--color-line: #efefef;
+	--color-line-2: #e6e6e6;
+	--color-line-3: #cfcfcf;
+	--color-field: #8a8a8a;
+	--color-fg: #0a0a0a;
+	--color-fg-2: #555555;
+	--color-fg-3: #666666;
+	/* The look is black and white: "blue" is the site's single accent, now the ink itself (and white in dark mode), so every selected state, focus ring, link and meter reads as ink. The names stay so the components and the retro look keep working unchanged. */
+	--color-blue: #0a0a0a;
+	--color-blue-ink: #0a0a0a;
+	--color-blue-soft: #f2f2f2;
+	--color-dev: #0a0a0a;
+	--color-dev-soft: #ececec;
 	--color-ok: #1a7f37;
 	--color-ok-soft: #e8f5ec;
 	--color-like: #c9285c;
@@ -63,7 +65,9 @@ What utilities cannot say, or what many pages share and adjust by class, is kept
 	--color-code-cmt: #59636e;
 
 	--font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, var(--font-cjk), sans-serif;
-	--font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+	/* Headings and figures: Space Grotesk for Latin script (loaded from Google Fonts with display=swap, so the system face shows until it arrives), the page language's CJK face for the rest. */
+	--font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', var(--font-cjk), sans-serif;
+	--font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
 
 	--radius-box: 12px;
 	--radius-menu: 14px;
@@ -76,22 +80,22 @@ What utilities cannot say, or what many pages share and adjust by class, is kept
 @layer base {
 	@media (prefers-color-scheme: dark) {
 		:root {
-			--color-bg: #0b0c0f;
-			--color-soft: #111318;
-			--color-panel: #15171c;
-			--color-raised: #1b1e24;
-			--color-line: #1f2228;
-			--color-line-2: #272a31;
-			--color-line-3: #353942;
-			--color-field: #636975;
-			--color-fg: #f3f4f6;
-			--color-fg-2: #a6abb4;
-			--color-fg-3: #8e939d;
-			--color-blue: #3d9bff;
-			--color-blue-ink: #6cb2ff;
-			--color-blue-soft: #14263b;
-			--color-dev: #e2b27a;
-			--color-dev-soft: #2a2116;
+			--color-bg: #0a0a0a;
+			--color-soft: #0f0f0f;
+			--color-panel: #141414;
+			--color-raised: #1a1a1a;
+			--color-line: #1f1f1f;
+			--color-line-2: #262626;
+			--color-line-3: #3a3a3a;
+			--color-field: #6b6b6b;
+			--color-fg: #ededed;
+			--color-fg-2: #a1a1a1;
+			--color-fg-3: #8f8f8f;
+			--color-blue: #ededed;
+			--color-blue-ink: #ededed;
+			--color-blue-soft: #1f1f1f;
+			--color-dev: #ededed;
+			--color-dev-soft: #262626;
 			--color-ok: #3fb950;
 			--color-ok-soft: #12261a;
 			--color-like: #ff7a98;

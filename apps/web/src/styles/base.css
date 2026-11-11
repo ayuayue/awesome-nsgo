@@ -6,49 +6,44 @@
 	--site-max: 1200px;
 	--font-cjk: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', 'Noto Sans CJK SC';
 
-	--gradient-brand: linear-gradient(135deg, #4da3ff, #007aff);
-	--gradient-btn: linear-gradient(135deg, #1a73e8, #0058c4);
-	--glow: rgb(0 122 255 / 0.12);
+	/* Black and white: the "brand" fills are the ink, flat, with no colour fields behind the page. The names stay so every rule that reads them follows. */
+	--gradient-brand: linear-gradient(#0a0a0a, #0a0a0a);
+	--gradient-btn: linear-gradient(#0a0a0a, #0a0a0a);
+	--glow: transparent;
 
-	/* The backdrop's colour fields, streaks and halos (styles/backdrop.css), stronger in dark mode, where they light a near-black page. */
-	--aurora-1: rgb(77 163 255 / 0.26);
-	--aurora-2: rgb(139 108 255 / 0.2);
-	--aurora-3: rgb(34 211 238 / 0.14);
-	--streak: rgb(0 122 255 / 0.55);
-	--streak-head: rgb(77 163 255 / 0.95);
-	--halo: rgb(0 122 255 / 0.18);
-	--sheen: rgb(0 122 255 / 0.08);
-	--band-lane: rgb(0 122 255 / 0.07);
-	--spot: rgb(0 122 255 / 0.07);
+	/* The backdrop's colour fields, streaks and halos (styles/backdrop.css) are off in this look; the hero draws its own grid floor. */
+	--aurora-1: transparent;
+	--aurora-2: transparent;
+	--aurora-3: transparent;
+	--streak: transparent;
+	--streak-head: transparent;
+	--halo: transparent;
+	--sheen: rgb(0 0 0 / 0.03);
+	--band-lane: transparent;
+	--spot: rgb(0 0 0 / 0.045);
 
-	--sh-1: 0 1px 2px rgb(16 24 40 / 0.05);
-	--sh-2: 0 1px 2px rgb(16 24 40 / 0.04), 0 12px 32px -12px rgb(16 24 40 / 0.14);
-	--sh-3: 0 2px 6px rgb(16 24 40 / 0.05), 0 40px 80px -32px rgb(16 24 40 / 0.28);
-	--sh-btn: 0 6px 16px -6px rgb(0 98 204 / 0.55);
-	--sh-btn-hover: 0 10px 22px -8px rgb(0 98 204 / 0.65);
+	--sh-1: 0 1px 2px rgb(0 0 0 / 0.04);
+	--sh-2: 0 1px 2px rgb(0 0 0 / 0.04), 0 18px 36px -16px rgb(0 0 0 / 0.2);
+	--sh-3: 0 1px 2px rgb(0 0 0 / 0.04), 0 28px 56px -24px rgb(0 0 0 / 0.24);
+	--sh-btn: 0 1px 2px rgb(0 0 0 / 0.08);
+	--sh-btn-hover: 0 1px 2px rgb(0 0 0 / 0.04), 0 18px 36px -16px rgb(0 0 0 / 0.28);
 
 	/* The two-lane mark, a long lane over a short one, both skewed by -10°: the eyebrow's mark and the inline `.lanes`, drawn as a mask so it takes any fill. */
 	--lanes-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 12'%3E%3Cg transform='translate(2.2 0) skewX(-10)'%3E%3Crect y='0.5' width='13' height='4.5' rx='2.25'/%3E%3Crect y='7' width='8.5' height='4.5' rx='2.25' opacity='.55'/%3E%3C/g%3E%3C/svg%3E");
 }
 @media (prefers-color-scheme: dark) {
 	:root {
-		--glow: rgb(61 155 255 / 0.16);
-		--aurora-1: rgb(61 155 255 / 0.3);
-		--aurora-2: rgb(139 108 255 / 0.24);
-		--aurora-3: rgb(34 211 238 / 0.16);
-		--streak: rgb(61 155 255 / 0.6);
-		--streak-head: rgb(190 225 255 / 0.95);
-		--halo: rgb(61 155 255 / 0.22);
-		--sheen: rgb(61 155 255 / 0.12);
-		--band-lane: rgb(61 155 255 / 0.1);
-		--spot: rgb(61 155 255 / 0.12);
+		--gradient-brand: linear-gradient(#ededed, #ededed);
+		--gradient-btn: linear-gradient(#ededed, #ededed);
+		--sheen: rgb(255 255 255 / 0.04);
+		--spot: rgb(255 255 255 / 0.06);
 
 		/* A zero shadow rather than `none`, so it still combines in a comma list with a ring. */
 		--sh-1: 0 0 #0000;
 		--sh-2: 0 12px 32px -12px rgb(0 0 0 / 0.6);
-		--sh-3: 0 0 0 1px rgb(255 255 255 / 0.04), 0 40px 80px -32px rgb(0 0 0 / 0.8);
-		--sh-btn: 0 6px 16px -6px rgb(0 0 0 / 0.6);
-		--sh-btn-hover: 0 10px 22px -8px rgb(0 0 0 / 0.7);
+		--sh-3: 0 0 0 1px #262626, 0 30px 60px -24px rgb(0 0 0 / 0.85);
+		--sh-btn: 0 0 #0000;
+		--sh-btn-hover: 0 0 0 1px #3a3a3a, 0 20px 40px -16px rgb(0 0 0 / 0.8);
 	}
 }
 @media (min-width: 1700px) {
@@ -127,6 +122,10 @@ h2,
 h3 {
 	text-wrap: balance;
 }
+h1,
+h2 {
+	font-family: var(--font-display);
+}
 p {
 	text-wrap: pretty;
 }
@@ -162,6 +161,7 @@ p {
 }
 .page-h1 {
 	margin: 0;
+	font-family: var(--font-display);
 	font-size: clamp(32px, 4.4vw, 50px);
 	font-weight: 800;
 	letter-spacing: -0.04em;
@@ -215,10 +215,7 @@ p {
 
 /* The home headline's second phrase, underlined by a lane rather than filled with the blue gradient nsgo.dev puts on its own headline: a band in the text's lower edge whose ends lean like the skewed pill (the hard stops of a 100deg gradient slant 10deg from upright), drawn behind the glyphs and repeated on every line the phrase wraps to. Forced colours drop it, as the text alone carries the words. */
 .lane-under {
-	--lane-a: color-mix(in srgb, #4da3ff 55%, transparent);
-	--lane-b: color-mix(in srgb, #8b6cff 45%, transparent);
-	--lane-c: color-mix(in srgb, #22d3ee 50%, transparent);
-	background: linear-gradient(100deg, transparent 0.12em, var(--lane-a) 0.12em, var(--lane-b) 60%, var(--lane-c) calc(100% - 0.12em), transparent calc(100% - 0.12em)) left bottom 0.1em / 100% 0.2em no-repeat;
+	background: linear-gradient(100deg, transparent 0.12em, color-mix(in srgb, currentColor 18%, transparent) 0.12em, color-mix(in srgb, currentColor 18%, transparent) calc(100% - 0.12em), transparent calc(100% - 0.12em)) left bottom 0.1em / 100% 0.2em no-repeat;
 	animation: lane-draw 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.55s both;
 	-webkit-box-decoration-break: clone;
 	box-decoration-break: clone;

@@ -1,0 +1,281 @@
+/* The home page's motion and the few things utilities cannot say: the hero's grid floor, the platform word's chips, the install terminal's highlighting, the terminal that types itself, the devices that rise beside it, the plugin rows that scroll, the FAQ's disclosure and the submit band's marquee. Everything stops with reduced motion (styles/motion.css turns `.rise` off; the block at the end here turns off the rest). */
+
+/* The hero's floor: a grid laid back in perspective that runs towards the reader, faded out at the top. */
+.hm-floor-wrap {
+	position: absolute;
+	inset: auto 0 0 0;
+	height: 340px;
+	perspective: 420px;
+	overflow: hidden;
+	pointer-events: none;
+	-webkit-mask-image: linear-gradient(transparent, #000 70%);
+	mask-image: linear-gradient(transparent, #000 70%);
+}
+.hm-floor {
+	position: absolute;
+	left: -50%;
+	top: 0;
+	width: 200%;
+	height: 200%;
+	transform-origin: 50% 0;
+	transform: rotateX(72deg);
+	background-image: linear-gradient(var(--color-line) 1.5px, transparent 1.5px), linear-gradient(90deg, var(--color-line) 1.5px, transparent 1.5px);
+	background-size: 64px 64px;
+	animation: hm-floor 1.6s linear infinite;
+}
+@keyframes hm-floor {
+	to {
+		background-position: 0 64px;
+	}
+}
+
+/* The live dot beside the hero badge: a dot and a ring that grows from it and fades. */
+.hm-live {
+	position: relative;
+	width: 8px;
+	height: 8px;
+	flex: none;
+}
+.hm-live::before,
+.hm-live::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: 50%;
+	background: var(--color-ok);
+}
+.hm-live::after {
+	animation: hm-ping 2.4s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+@keyframes hm-ping {
+	from {
+		transform: scale(0.6);
+		opacity: 0.9;
+	}
+	to {
+		transform: scale(2.8);
+		opacity: 0;
+	}
+}
+
+/* A platform chip under the word lights up while the dots spell its platform. */
+.hm-chip {
+	transition: background-color 0.35s, color 0.35s, border-color 0.35s;
+}
+.hm-chip[data-on] {
+	background: var(--color-fg);
+	border-color: var(--color-fg);
+	color: var(--color-bg);
+}
+
+/* The install terminal and the "build once" terminal are dark in both schemes, with GitHub-dark highlighting. */
+.hm-term {
+	background: #0a0a0a;
+	color: #ededed;
+}
+@media (prefers-color-scheme: dark) {
+	.hm-term {
+		background: #000;
+		box-shadow: 0 0 0 1px #262626;
+	}
+}
+.tk-pr {
+	color: #6e7681;
+}
+.tk-b {
+	color: #79c0ff;
+	font-weight: 600;
+}
+.tk-s {
+	color: #d2a8ff;
+}
+.tk-p {
+	color: #7ee787;
+}
+.tk-f {
+	color: #ffa657;
+}
+.tk-v {
+	color: #a5d6ff;
+}
+.tk-a {
+	color: #e6edf3;
+}
+.hm-caret {
+	display: inline-block;
+	width: 8px;
+	height: 16px;
+	margin-left: 3px;
+	vertical-align: -3px;
+	background: #8f8f8f;
+	animation: hm-blink 1s steps(1) infinite;
+}
+@keyframes hm-blink {
+	50% {
+		opacity: 0;
+	}
+}
+.hm-tab[aria-selected='true'] {
+	background: rgb(255 255 255 / 0.12);
+	color: #fff;
+	font-weight: 600;
+}
+
+/* The "build once" terminal types its lines one after another, then the three devices rise in turn and bob, on a ten-second loop. */
+.hm-ln {
+	animation: hm-ln 10s cubic-bezier(0.2, 0.7, 0.2, 1) infinite both;
+}
+@keyframes hm-ln {
+	0%,
+	3% {
+		opacity: 0;
+		transform: translateX(-12px);
+	}
+	9%,
+	88% {
+		opacity: 1;
+		transform: none;
+	}
+	95%,
+	100% {
+		opacity: 0;
+	}
+}
+.hm-pop {
+	animation: hm-pop 10s cubic-bezier(0.2, 0.8, 0.2, 1) infinite both;
+}
+@keyframes hm-pop {
+	0%,
+	12% {
+		opacity: 0;
+		transform: translateY(40px) scale(0.92);
+	}
+	20%,
+	90% {
+		opacity: 1;
+		transform: none;
+	}
+	95%,
+	100% {
+		opacity: 0;
+		transform: translateY(-12px);
+	}
+}
+.hm-bob {
+	animation: hm-bob 6s ease-in-out infinite;
+}
+/* The loop waits until its section has scrolled into view (lib/motion.ts marks the .rv wrapper with data-in), so a visitor arrives at its start rather than somewhere in the middle. */
+.rv:not([data-in]) :is(.hm-ln, .hm-pop) {
+	animation-play-state: paused;
+}
+@keyframes hm-bob {
+	50% {
+		transform: translateY(-12px);
+	}
+}
+
+/* Two rows of plugins scroll in opposite directions and stop under the pointer or keyboard focus. Each row holds its list twice, the second copy hidden from assistive tech and the tab order, so the loop is seamless. */
+.hm-rows {
+	-webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+	mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+.hm-row {
+	display: flex;
+	gap: 12px;
+	width: max-content;
+	animation: hm-marq 60s linear infinite;
+}
+.hm-row[data-dir='r'] {
+	animation-name: hm-marq-r;
+	animation-duration: 70s;
+}
+.hm-row:hover,
+.hm-row:focus-within {
+	animation-play-state: paused;
+}
+@keyframes hm-marq {
+	to {
+		transform: translateX(-50%);
+	}
+}
+@keyframes hm-marq-r {
+	from {
+		transform: translateX(-50%);
+	}
+	to {
+		transform: none;
+	}
+}
+
+/* The FAQ: native disclosures with a plus that turns into a cross. */
+.hm-faq > summary {
+	list-style: none;
+	cursor: pointer;
+}
+.hm-faq > summary::-webkit-details-marker {
+	display: none;
+}
+.hm-faq .hm-plus {
+	transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.hm-faq[open] .hm-plus {
+	transform: rotate(45deg);
+}
+.hm-faq[open] > p {
+	animation: up 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* The submit band's marquee: the call to submit, alternately filled and outlined, with a turning star. */
+.hm-marq {
+	display: flex;
+	width: max-content;
+	animation: hm-marq 26s linear infinite;
+}
+.hm-outline {
+	color: transparent;
+	-webkit-text-stroke: 1.5px color-mix(in srgb, var(--color-bg) 45%, transparent);
+}
+.hm-star {
+	display: inline-block;
+	animation: hm-spin 8s linear infinite;
+}
+@keyframes hm-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* A step's connecting line draws itself as the step scrolls into view, where scroll-driven animations exist; elsewhere it is simply there. */
+.hm-step-line {
+	transform-origin: left;
+}
+@supports (animation-timeline: view()) {
+	.hm-step-line {
+		animation: hm-grow linear both;
+		animation-timeline: view();
+		animation-range: entry 20% cover 45%;
+	}
+}
+@keyframes hm-grow {
+	from {
+		transform: scaleX(0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.hm-floor,
+	.hm-live::after,
+	.hm-caret,
+	.hm-ln,
+	.hm-pop,
+	.hm-bob,
+	.hm-row,
+	.hm-marq,
+	.hm-star,
+	.hm-step-line {
+		animation: none;
+	}
+	.hm-faq[open] > p {
+		animation: none;
+	}
+}
