@@ -91,15 +91,30 @@
 	50% { opacity: 1; transform: scale(1.15); transform-origin: center; }
 }
 
-/* With reduced motion: no animation (the page's and the backdrop's lanes), the reveal shown at once, and no lift, nudge or zoom on hover. Last of the stylesheets, so it wins over the rules it turns off in backdrop.css and primitives.css. */
+/* With reduced motion: no animation (the backdrop's colour fields, streaks and lanes, the hero's ring, chips and underline, the rail's sheen), the reveal shown at once, and no lift, nudge or zoom on hover. Last of the stylesheets, so it wins over the rules it turns off in backdrop.css and primitives.css. */
 @media (prefers-reduced-motion: reduce) {
 	.enter,
 	.rise,
 	.drop,
 	.fade,
 	.pulse,
-	.backdrop-lane {
+	.backdrop-lane,
+	.aurora,
+	.float-chip,
+	.lane-under,
+	.glow-frame::before,
+	.rail-track::before {
 		animation: none;
+	}
+	.streak,
+	.rail-track::before,
+	.btn-c::after {
+		display: none;
+	}
+	.group:hover .ichip,
+	.tile:hover .ichip,
+	.tile:hover .tile-mark {
+		transform: none;
 	}
 	.rv {
 		opacity: 1;

@@ -25,7 +25,7 @@ export const showDesc = 'flex-auto text-[14.5px] leading-[1.6] text-pretty text-
 // A UI library's, a state solution's or a plugin's card: the project's screenshot on top when it has one (`shot`), the body, 16px in from the card's edges below sm instead of 20px, and a footer row naming where the entry lives (`label`, a GitHub path gets the GitHub mark) that may end in a link (`bar`).
 export function EntryCard({ label, bar, shot, children }: { label: string; bar?: ReactNode; shot?: ReactNode; children: ReactNode }) {
 	return (
-		<article className='win card'>
+		<article className='win card spot'>
 			{shot}
 			<div className='flex flex-auto flex-col gap-3 p-5 max-sm:gap-2.5 max-sm:p-4'>{children}</div>
 			<div className='flex min-h-11 items-center gap-3 border-t border-line px-5 max-sm:px-4'>
@@ -108,7 +108,7 @@ export function AppCard({ app, k, as: H = 'h2', like = true, score = true }: { a
 	const v = appView(app);
 	return (
 		<div className={`rv d${k % 6} group relative flex`}>
-			<AppLink slug={app.slug} dialog className='card text-fg no-underline transition-[transform,border-color,box-shadow] duration-150 group-hover:-translate-y-0.5 group-hover:border-line-3 group-hover:[box-shadow:var(--sh-2)] motion-reduce:group-hover:translate-y-0'>
+			<AppLink slug={app.slug} dialog className='card spot text-fg no-underline transition-[transform,border-color,box-shadow] duration-150 group-hover:-translate-y-0.5 group-hover:border-line-3 group-hover:[box-shadow:var(--sh-2)] motion-reduce:group-hover:translate-y-0'>
 				{/* The screenshot is decorative (the name is the link's text). */}
 				<span className={`card-screen ${app.image ? '' : 'aspect-[16/6]'}`}>
 					{app.image ? (
