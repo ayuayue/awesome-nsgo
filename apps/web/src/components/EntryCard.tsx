@@ -7,8 +7,10 @@ import { ScoreBar, ScoreButton } from './Score';
 
 // The parts of an entry's card in the original look, drawn the same on the showcase, the UI libraries, the state solutions and the plugins: a rounded surface with the entry's body and a footer row of meta.
 
-// The grid of cards on the showcase, UI library and state pages.
+// The grid of app cards on the showcase.
 export const showGrid = 'grid grid-cols-[repeat(auto-fill,minmax(min(100%,280px),1fr))] gap-4';
+// The grid of entry cards (EntryCard with a CardHead) on the UI library, state, AI and template pages. Their head holds the name beside the score and like buttons, so a 280px column left the name about 100px and stretched the card to twice as tall as it was wide; at 340px a 1200px page holds three columns, as the plugins page does.
+export const entryGrid = 'grid grid-cols-[repeat(auto-fill,minmax(min(100%,340px),1fr))] gap-4';
 
 // A card's head: the tile (when the card has one), then the name and the line under it.
 // Keep the icon aligned with the name when the metadata wraps on narrow cards.

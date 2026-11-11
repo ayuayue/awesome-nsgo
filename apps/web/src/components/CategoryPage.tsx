@@ -3,7 +3,7 @@ import { useT } from '../lib/lang';
 import { type CopyKey, useSite } from '../lib/site';
 import { SetupLine } from './CopyCmd';
 import { CtaBox, CtaHead } from './Cta';
-import { BarLink, CardHead, CardShot, EntryCard, TagList, cardShotImg, showBy, showDesc, showGrid } from './EntryCard';
+import { BarLink, CardHead, CardShot, EntryCard, TagList, cardShotImg, entryGrid, showBy, showDesc } from './EntryCard';
 import { EmptyLanes } from './marks';
 
 // One card of a category page that lists projects by their repository with a command to copy: a template and how to start from it, an AI tool and how to install it.
@@ -73,7 +73,7 @@ export function CategoryPage({ cat, copy, items }: { cat: SubmitCat; copy: Categ
 			{listed && (
 				<div className='flex flex-col gap-4'>
 					<h2 className='m-0 text-[22px] font-bold tracking-[-0.02em]'>{copy.listed}</h2>
-					<div className={showGrid}>
+					<div className={entryGrid}>
 						{items.map((x, k) => {
 							const cut = cmdTail(x.cmd);
 							// The card opens the project's website when it has one; the bar then links its repository.

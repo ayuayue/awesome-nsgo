@@ -1,7 +1,7 @@
 import { type AppKind, HAS_SCORES, NATIVE_UI_DOCS, type Surface, UI_KEYS, UI_LIBS, type UiLibKey, fill, likeKey, pick } from '@awesome-nsgo/catalog';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { CtaBox, ctaP } from '../components/Cta';
-import { BarLink, CardHead, CardShot, EntryCard, cardShotImg, showBy, showDesc, showGrid } from '../components/EntryCard';
+import { BarLink, CardHead, CardShot, EntryCard, cardShotImg, entryGrid, showBy, showDesc } from '../components/EntryCard';
 import { FilterBar, FilterChip, FilterChips, FilterSelect, FilterSelects } from '../components/FilterBar';
 import { useLang, useT } from '../lib/lang';
 import { validateUiSearch } from '../lib/page-search';
@@ -69,7 +69,7 @@ function UiPage() {
 					</FilterSelect>
 				</FilterSelects>
 			</FilterBar>
-			<div className={showGrid}>
+			<div className={entryGrid}>
 				{libs.map((l, k) => {
 					// The card opens the library's website when it has one; the bar then links its repository.
 					const site = l.homepage ?? l.url;
