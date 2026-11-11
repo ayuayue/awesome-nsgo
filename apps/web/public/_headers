@@ -14,7 +14,7 @@
 # The README badge keeps one URL for good: projects paste it into their READMEs and the listing issues hand it out (packages/announce), so it cannot be renamed when its look changes, as the other assets are. It is cached for a day instead, so a new look reaches every README, through GitHub's image proxy too, within a day or two.
 /badge.svg
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800
-/og-site-1200x630.png
+/og-site-v2-1200x630.png
   Cache-Control: public, max-age=31536000, stale-while-revalidate=604800
 /favicon.ico
   Cache-Control: public, max-age=31536000, stale-while-revalidate=604800
