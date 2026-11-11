@@ -22,7 +22,9 @@ export const showName = 'm-0 truncate text-[17px] font-[650] tracking-[-0.015em]
 export const cardName = 'm-0 line-clamp-2 text-[17px] leading-[1.25] font-[650] tracking-[-0.015em] wrap-break-word';
 export const showBy = 'truncate text-[13px] text-fg-3';
 // text-pretty because a card's description is often a span, which the base rule's text-wrap: pretty on paragraphs does not reach; without it a Chinese or Japanese description ended on a line of one to three characters.
-export const showDesc = 'flex-auto text-[14.5px] leading-[1.6] text-pretty text-fg-2';
+export const showDescText = 'text-[14.5px] leading-[1.6] text-pretty text-fg-2';
+// A description that takes up the card's spare height, pushing what follows it to the foot.
+export const showDesc = `flex-auto ${showDescText}`;
 
 // A UI library's, a state solution's or a plugin's card: the project's screenshot on top when it has one (`shot`), the body, 16px in from the card's edges below sm instead of 20px, and a footer row naming where the entry lives (`label`, a GitHub path gets the GitHub mark) that may end in a link (`bar`).
 export function EntryCard({ label, bar, shot, children }: { label: string; bar?: ReactNode; shot?: ReactNode; children: ReactNode }) {
@@ -135,7 +137,8 @@ export function AppCard({ app, k, as: H = 'h2', like = true, score = true }: { a
 							</span>
 						</span>
 					</span>
-					<span className={`${showDesc} line-clamp-3 max-sm:line-clamp-2`}>{pick(app.desc, lang)}</span>
+					{/* The clamped description keeps its own height (the platforms' mt-auto takes the spare height instead): grown by flex-auto in a card stretched to its row, the box showed the line after the clamp's ellipsis. */}
+					<span className={`${showDescText} line-clamp-3 max-sm:line-clamp-2`}>{pick(app.desc, lang)}</span>
 					<span className='mt-auto'>
 						<PlatformTags app={app} />
 					</span>
