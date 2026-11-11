@@ -24,6 +24,10 @@ const NEWEST_APPS = sortApps(APPS, 'newest', {}).slice(0, 5);
 // The platform rail: each platform with the number of apps that run on it, leaving out the platforms no app supports yet, as an empty cell reads as a dead link.
 const PLATFORM_COUNTS = APP_PLATFORMS.map((p) => ({ p, n: APPS.filter((a) => a.platforms.includes(p)).length })).filter((x) => x.n > 0);
 
+// The chips floating round the hero's Newest card: up to four platforms apps run on, phones and the web before the desktops so the spread reads at a glance.
+const CHIP_ORDER = ['mac', 'ios', 'web', 'win', 'android', 'linux', 'miniprogram'] as const;
+const FLOAT_CHIPS = CHIP_ORDER.filter((p) => PLATFORM_COUNTS.some((x) => x.p === p)).slice(0, 4);
+
 export const Route = createFileRoute('/')({
 	// ?install= keeps the install command's tab in the address, so a link reproduces the view.
 	validateSearch: validateHomeSearch,
@@ -50,8 +54,14 @@ function HomePage() {
 			<PlatformRail />
 			<Categories />
 			{FEATURED_APPS.length > 0 && (
-				<div className='border-t border-line bg-soft pt-20 max-sm:pt-14'>
-					<section aria-labelledby='fresh' className={`${SEC} pb-24 max-sm:pb-16`}>
+				<div className='relative border-t border-line bg-soft pt-20 max-sm:pt-14'>
+					{/* Decoration only: dots and two broad lanes behind the cards, and a line of light along the band's top edge (styles/backdrop.css). */}
+					<div aria-hidden='true' className='band-deco'>
+						<span className='band-lane b1' />
+						<span className='band-lane b2' />
+					</div>
+					<span aria-hidden='true' className='edge-light' />
+					<section aria-labelledby='fresh' className={`${SEC} relative pb-24 max-sm:pb-16`}>
 						<div className={`rv ${SEC_HEAD}`}>
 							<h2 id='fresh' className={SEC_H2}>
 								{t.feat_h}
@@ -165,9 +175,16 @@ function Hero() {
 					</div>
 				</div>
 
-				{/* The newest apps as a ranked list; phones show four of the five. */}
+				{/* The newest apps as a ranked list; phones show four of the five. A ring of light runs round it and platform chips float at its corners (styles/backdrop.css); both are decoration. */}
 				{NEWEST_APPS.length > 0 && (
-					<section aria-label={t.a_marquee} className='rise [animation-delay:0.2s] card [box-shadow:var(--sh-3)]'>
+					<div className='rise [animation-delay:0.2s] glow-frame'>
+					{FLOAT_CHIPS.map((p, i) => (
+						<span key={p} aria-hidden='true' className={`float-chip c${i + 1}`}>
+							<span className='pglyph' data-p={p} />
+							{t[`platform_${p}`]}
+						</span>
+					))}
+					<section aria-label={t.a_marquee} className='card [box-shadow:var(--sh-3)]'>
 						<div className='flex h-12 items-center justify-between border-b border-line px-5'>
 							<h2 className='kicker m-0 text-[13px]'>{t.sort_new}</h2>
 							<Link to='/showcase' search={{ sort: 'newest' }} className='inline-flex items-center text-[13px] font-semibold text-blue-ink no-underline hover:underline max-md:min-h-10'>
@@ -189,6 +206,7 @@ function Hero() {
 							))}
 						</ol>
 					</section>
+					</div>
 				)}
 			</div>
 		</section>
@@ -201,12 +219,12 @@ function PlatformRail() {
 	if (PLATFORM_COUNTS.length === 0) return null;
 	return (
 		<section aria-label={t.f_platform} className={`${SEC} pb-4`}>
-			<div className='overflow-hidden rounded-band border border-line-2 bg-soft p-2 max-md:px-0 max-md:py-1'>
+			<div className='rail-track overflow-hidden rounded-band border border-line-2 bg-soft p-2 max-md:px-0 max-md:py-1'>
 				<ul className='m-0 flex list-none gap-2 p-0 max-md:snap-x max-md:scroll-px-2 max-md:overflow-x-auto max-md:py-1 max-md:pr-7 max-md:pl-2 max-md:[mask-image:linear-gradient(to_right,#000_calc(100%-28px),transparent)] max-md:[scrollbar-width:none]'>
 					{PLATFORM_COUNTS.map(({ p, n }) => (
 						<li key={p} className='flex flex-1 max-md:flex-none'>
-							<Link to='/showcase' search={{ platform: p }} className='group flex min-h-14 flex-1 snap-start items-center gap-3 rounded-menu border border-line-2 bg-panel px-4 text-fg no-underline transition-[border-color,transform] duration-150 hover:-translate-y-px hover:border-line-3 motion-reduce:hover:translate-y-0'>
-								<span className='flex size-9 flex-none items-center justify-center rounded-[10px] bg-blue-soft text-blue'>
+							<Link to='/showcase' search={{ platform: p }} className='spot group flex min-h-14 flex-1 snap-start items-center gap-3 rounded-menu border border-line-2 bg-panel px-4 text-fg no-underline transition-[border-color,transform] duration-150 hover:-translate-y-px hover:border-line-3 motion-reduce:hover:translate-y-0'>
+								<span className='ichip flex size-9 flex-none items-center justify-center rounded-[10px] bg-blue-soft text-blue'>
 									<span className='pglyph [--pg-size:20px]' data-p={p} />
 								</span>
 								<span className='flex flex-col'>
@@ -250,9 +268,9 @@ function Categories() {
 				{cats.map((c, k) => (
 					// The reveal is on a wrapper: on the tile itself its settled transform would override the tile's hover lift. The tile's own border and shadow utilities outrank .tile:hover, so its hover restates them.
 					<div key={c.to} className={`rv d${k} flex`}>
-						<Link to={c.to} className='tile group relative flex min-h-[184px] flex-1 flex-col gap-3 rounded-card border border-line-2 bg-panel p-6 text-fg no-underline [box-shadow:var(--sh-1)] hover:border-line-3 hover:[box-shadow:var(--sh-2)] max-sm:min-h-0 max-sm:p-5'>
+						<Link to={c.to} className='tile spot group relative flex min-h-[184px] flex-1 flex-col gap-3 rounded-card border border-line-2 bg-panel p-6 text-fg no-underline [box-shadow:var(--sh-1)] hover:border-line-3 hover:[box-shadow:var(--sh-2)] max-sm:min-h-0 max-sm:p-5'>
 							<span className='flex items-start justify-between gap-3'>
-								<span className='flex size-10 items-center justify-center rounded-box bg-blue-soft text-blue'>
+								<span className='ichip flex size-10 items-center justify-center rounded-box bg-blue-soft text-blue'>
 									<NavIcon to={c.to} />
 								</span>
 								<span className={`inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-[12.5px] font-semibold ${c.wanted ? 'bg-dev-soft text-dev' : 'bg-soft text-fg-2'}`}>{c.badge}</span>
@@ -262,6 +280,7 @@ function Categories() {
 							<span aria-hidden='true' className='arrow mt-auto self-end text-[16px] text-fg-3 group-hover:text-blue-ink'>
 								→
 							</span>
+							<span aria-hidden='true' className='tile-mark' />
 						</Link>
 					</div>
 				))}

@@ -14,6 +14,7 @@ export function Footer() {
 	const t = useT();
 	return (
 		<footer className='relative z-1 border-t border-line bg-soft'>
+			<span aria-hidden='true' className='edge-light' />
 			{/* The page's gutter: 24px from sm up, 20px on phones. The brand, the licence line and NSGo's own links on the left; every section on the right, in a grid that stacks under the brand on narrow screens. */}
 			<div className='site-shell mx-auto grid grid-cols-[minmax(0,1.3fr)_minmax(0,2fr)] gap-x-12 gap-y-8 px-6 pt-14 pb-10 max-tab:grid-cols-1 max-sm:px-5'>
 				<div>
