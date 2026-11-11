@@ -21,6 +21,9 @@ const RetroApp = lazy(() => import('../retro/RetroApp'));
 
 const LANG_REDIRECT = langRedirectScript();
 
+// The Google Fonts stylesheet of the original look.
+const FONTS_CSS = 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap';
+
 export const Route = createRootRoute({
 	validateSearch: validateRootSearch,
 	search: { middlewares: [retainLang] },
@@ -56,15 +59,15 @@ export const Route = createRootRoute({
 			{ rel: 'icon', type: 'image/png', sizes: '32x32', href: '/mark-32.png' },
 			{ rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
 			{ rel: 'manifest', href: '/site.webmanifest' },
-			// Each look loads only its own stylesheet. The original stylesheet is preloaded and applied by the inline loader below so it does not block first paint; it uses the system's fonts, so nothing else is fetched.
+			// Each look loads only its own stylesheet, as an ordinary render-blocking link: the page is never painted without it. The original look's stylesheet used to be applied by an inline script so it would not block the first paint, but with no critical CSS inlined that painted the bare HTML for as long as the stylesheet took to arrive (about half a second on a first visit). It is about 20 KB gzipped, from the site's own origin, and cached.
 			...(retro
 				? [{ rel: 'stylesheet', href: retroStyles }]
 				: [
-						{ rel: 'preload', as: 'style', href: styles },
-						// The display face (Space Grotesk, Latin only) and the code face (JetBrains Mono); display=swap keeps the system face until they arrive.
+						{ rel: 'stylesheet', href: styles },
+						// The display face (Space Grotesk, Latin only) and the code face (JetBrains Mono) come from Google Fonts. Their stylesheet is preloaded here and applied by the inline loader below, so it does not block the first paint: it is a third-party origin, which is slow from some networks and unreachable from mainland China, where a blocking link would hold the page blank until the request timed out. display=swap keeps the system face until the fonts arrive.
 						{ rel: 'preconnect', href: 'https://fonts.googleapis.com' },
 						{ rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' as const },
-						{ rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap' },
+						{ rel: 'preload', as: 'style', href: FONTS_CSS },
 					]),
 		],
 		};
@@ -104,13 +107,13 @@ function RootDocument({ theme, children }: { theme: Theme; children: ReactNode }
 				{/* A bare URL is Simplified Chinese. A first visit with a saved choice or another browser language goes to its ?lang= page before anything renders, so the server serves that language and React never switches it mid-hydration. */}
 				<script dangerouslySetInnerHTML={{ __html: LANG_REDIRECT }} />
 				<HeadContent />
-				{theme !== 'retro' && <script dangerouslySetInnerHTML={{ __html: styleLoader(styles) }} />}
+				{theme !== 'retro' && <script dangerouslySetInnerHTML={{ __html: styleLoader(FONTS_CSS) }} />}
 				{ogLocaleAlternates(lang).map((locale) => (
 					<meta key={locale} property='og:locale:alternate' content={locale} />
 				))}
 				<noscript>
 					<style>{'.rv{opacity:1;transform:none}'}</style>
-					{theme !== 'retro' && <link rel='stylesheet' href={styles} />}
+					{theme !== 'retro' && <link rel='stylesheet' href={FONTS_CSS} />}
 				</noscript>
 			</head>
 			<body>
