@@ -138,3 +138,15 @@ What utilities cannot say, or what many pages share and adjust by class, is kept
 		}
 	}
 }
+
+/* Where the header folds its sections into the burger's panel (components/Header.tsx): below the nav breakpoint (860px), and in English and Japanese below 1100px, whose longer section names leave the brand, the eight-section capsule and the actions no room for one row there, so the actions ran onto a second row under the logo. */
+@custom-variant burger {
+	@media (width < 860px) {
+		@slot;
+	}
+	@media (width < 1100px) {
+		&:is(:lang(en), :lang(ja)) {
+			@slot;
+		}
+	}
+}

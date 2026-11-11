@@ -8,17 +8,19 @@ import { GitHubMark } from './bits';
 import { SITE_NAV } from './Header';
 import { CheckIcon, SiteMark } from './marks';
 
-const FOOT_EXT = 'text-fg-2 no-underline hover:text-blue-ink max-md:inline-flex max-md:min-h-10 max-md:items-center';
+// NSGo's own links take a 40px tap height below md and with a touch screen's pointer at any width (tablets, landscape phones), where they are a row of standalone buttons; with a mouse from md up they stay plain text.
+const FOOT_EXT = 'text-fg-2 no-underline hover:text-blue-ink max-md:inline-flex max-md:min-h-10 max-md:items-center pointer-coarse:inline-flex pointer-coarse:min-h-10 pointer-coarse:items-center';
 
 export function Footer() {
 	const t = useT();
 	return (
-		<footer className='relative z-1 border-t border-line bg-soft'>
+		// The band reaches under a landscape notch, past the page's safe-area padding, while its grid stays inside it.
+		<footer className='relative z-1 mr-[calc(-1*env(safe-area-inset-right))] ml-[calc(-1*env(safe-area-inset-left))] border-t border-line bg-soft pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]'>
 			<span aria-hidden='true' className='edge-light' />
 			{/* The page's gutter: 24px from sm up, 20px on phones. The brand, the licence line and NSGo's own links on the left; every section on the right, in a grid that stacks under the brand on narrow screens. */}
 			<div className='site-shell mx-auto grid grid-cols-[minmax(0,1.3fr)_minmax(0,2fr)] gap-x-12 gap-y-8 px-6 pt-14 pb-10 max-tab:grid-cols-1 max-sm:px-5'>
 				<div>
-					<Link to='/' className='inline-flex items-center gap-2.5 text-fg no-underline max-md:min-h-10'>
+					<Link to='/' className='inline-flex items-center gap-2.5 text-fg no-underline max-md:min-h-10 pointer-coarse:min-h-10'>
 						<SiteMark size={26} />
 						<span className='text-[16px] font-bold tracking-[-0.02em]'>
 							Awesome <span className='text-blue-ink'>NSGo</span>
