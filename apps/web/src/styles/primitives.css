@@ -41,7 +41,7 @@
 }
 .btn-c {
 	background: var(--gradient-btn);
-	color: #fff;
+	color: var(--color-bg);
 	border: 0;
 	font-weight: 600;
 	box-shadow: var(--sh-btn);
@@ -51,7 +51,7 @@
 }
 /* No brightening on hover: it lifted the gradient's light end until the white label fell under 4.5:1; the lift and the deeper shadow say enough. */
 .btn-c:hover {
-	color: #fff;
+	color: var(--color-bg);
 	transform: translateY(-1px);
 	box-shadow: var(--sh-btn-hover);
 }
@@ -207,7 +207,7 @@
 }
 .tone-0 {
 	background: var(--gradient-brand);
-	color: #fff;
+	color: var(--color-bg);
 }
 .tone-1 {
 	background: var(--color-blue-soft);
@@ -402,27 +402,27 @@
 
 /* The metrics globe's palette (components/MetricsGlobe.tsx reads these in its SVG), scoped to its frame, with a dark set by the system setting. */
 .globe {
-	--globe-bg: #f4f8fd;
+	--globe-bg: #fafafa;
 	--globe-0: #ffffff;
-	--globe-1: #e6f0fe;
-	--globe-2: #d2e3fb;
-	--globe-ink: #007aff;
-	--globe-hi: #0062cc;
-	--globe-label: #5b606a;
+	--globe-1: #f0f0f0;
+	--globe-2: #e2e2e2;
+	--globe-ink: #0a0a0a;
+	--globe-hi: #0a0a0a;
+	--globe-label: #555555;
 	--globe-tip: #ffffff;
-	--globe-tip-line: #e1e3e8;
+	--globe-tip-line: #e6e6e6;
 }
 @media (prefers-color-scheme: dark) {
 	.globe {
-		--globe-bg: #0d1219;
-		--globe-0: #1a2b40;
-		--globe-1: #11203a;
-		--globe-2: #0a1627;
-		--globe-ink: #3d9bff;
-		--globe-hi: #cfe6ff;
-		--globe-label: #a6abb4;
-		--globe-tip: #1b1e24;
-		--globe-tip-line: #272a31;
+		--globe-bg: #0f0f0f;
+		--globe-0: #262626;
+		--globe-1: #1c1c1c;
+		--globe-2: #141414;
+		--globe-ink: #ededed;
+		--globe-hi: #ffffff;
+		--globe-label: #a1a1a1;
+		--globe-tip: #1a1a1a;
+		--globe-tip-line: #262626;
 	}
 }
 
@@ -468,9 +468,9 @@
 .group:hover .ichip,
 .tile:hover .ichip {
 	background: var(--gradient-brand);
-	color: #fff;
+	color: var(--color-bg);
 	transform: rotate(-8deg) scale(1.06);
-	box-shadow: 0 8px 18px -8px rgb(0 98 204 / 0.6);
+	box-shadow: var(--sh-2);
 }
 
 /* A large two-lane mark that slides into a tile's lower right corner on hover, behind the arrow, like lanes leaving the card; at rest it is hidden, so the tiles stay clean. */
@@ -507,7 +507,7 @@
 	bottom: 0;
 	left: 0;
 	width: 45%;
-	background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.32), transparent);
+	background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-bg) 30%, transparent), transparent);
 	transform: translateX(-130%) skewX(-20deg);
 	pointer-events: none;
 }

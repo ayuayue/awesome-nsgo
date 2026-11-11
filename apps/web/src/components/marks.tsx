@@ -2,23 +2,16 @@ import { useId } from 'react';
 
 // Glyphs the original look shares across pages: the site mark, a check, one icon per category and the empty-state art. Every one is decorative (aria-hidden) and draws in currentColor or the site's blue, so it follows the colour scheme.
 
-// The site's own mark: two lanes and a spark on a blue tile. It is never NSGo's ≡O and never three bars.
+// The site's own mark: two lanes and a spark on an ink tile, so it is black on a light page and white on a dark one. It is never NSGo's ≡O and never three bars.
 export function SiteMark({ size = 28 }: { size?: number }) {
-	const gid = useId();
 	return (
 		<svg viewBox='0 0 32 32' width={size} height={size} aria-hidden='true' className='block flex-none'>
-			<defs>
-				<linearGradient id={gid} x1='0' y1='0' x2='1' y2='1'>
-					<stop offset='0' stopColor='#4da3ff' />
-					<stop offset='1' stopColor='#0062cc' />
-				</linearGradient>
-			</defs>
-			<rect width='32' height='32' rx='9' fill={`url(#${gid})`} />
-			<g transform='translate(1.6 0) skewX(-10)' fill='#fff'>
+			<rect width='32' height='32' rx='9' style={{ fill: 'var(--color-fg)' }} />
+			<g transform='translate(1.6 0) skewX(-10)' style={{ fill: 'var(--color-bg)' }}>
 				<rect x='9.5' y='9' width='15' height='5.5' rx='2.75' />
 				<rect x='10.5' y='17.5' width='9' height='5.5' rx='2.75' />
 			</g>
-			<path d='M24.5 16.5l1.1 2.6 2.6 1.1-2.6 1.1-1.1 2.6-1.1-2.6-2.6-1.1 2.6-1.1z' fill='#fff' />
+			<path d='M24.5 16.5l1.1 2.6 2.6 1.1-2.6 1.1-1.1 2.6-1.1-2.6-2.6-1.1 2.6-1.1z' style={{ fill: 'var(--color-bg)' }} />
 		</svg>
 	);
 }
