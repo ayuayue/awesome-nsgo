@@ -145,7 +145,7 @@ p {
 
 /* Page layout shared by every route of the original look: the page container, its heading and lead paragraph, and the eyebrow above headings. They stay named classes because every page repeats them; a page adds its own gap and extras with utilities beside the class (`page enter gap-10`). */
 
-/* Every page's container. It stays at 1200px for laptop-sized viewports and grows to 1440px only on genuinely wide screens; the gutter stays 24px from sm up and 20px on phones, the same as the header, the footer and the dialogs, so all left edges line up. On a phone the space above and below the page shrinks so the first card is not pushed under the fold. */
+/* Every page's container. It stays at 1200px for laptop-sized viewports and grows to 1440px only on genuinely wide screens; the gutter stays 24px from sm up and 20px on phones, the same as the header, the footer and the dialogs, so all left edges line up. On a phone the space above and below the page shrinks so the first card is not pushed under the fold, and on a screen under 560px tall (a phone held sideways, which is wider than sm) the space above shrinks further, as the sticky header already takes a sixth of the height there. */
 .page {
 	max-width: var(--site-max);
 	margin: 0 auto;
@@ -154,6 +154,9 @@ p {
 	flex-direction: column;
 	@variant max-sm {
 		padding: 36px 20px 64px;
+	}
+	@media (max-height: 560px) {
+		padding-top: 28px;
 	}
 }
 .site-shell {

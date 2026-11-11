@@ -1,5 +1,6 @@
 import { CLI_CMDS, COMMUNITY_PLUGINS, HAS_SCORES, PLUGINS, PLUGINS_DOC, type Plugin, type PluginSurface, compareByScore, fill, likeKey, pick, pluginPath } from '@awesome-nsgo/catalog';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { Fragment } from 'react';
 import { CopyButton, SetupLine, cmdRow } from '../components/CopyCmd';
 import { CtaBox, CtaHead } from '../components/Cta';
 import { BarLink, CardHead, EntryCard, TagList, showDesc } from '../components/EntryCard';
@@ -101,12 +102,12 @@ function PluginsPage() {
 		);
 	};
 	return (
-		<section className='page enter gap-10 max-sm:gap-6'>
+		<section className='page enter gap-10 max-sm:gap-6 [@media(max-height:560px)]:gap-6'>
 			<div className='flex flex-col gap-3'>
 				<span className='kicker'>{`${sourceLabel} · ${sourcePlugins.length}`}</span>
 				<h1 className='page-h1'>{t.nav_plugins}</h1>
-				{/* Below sm the lead paragraph is left out: on a phone it took four lines ahead of the list, whose heading and cards already say what the page holds. */}
-				<p className='page-p max-sm:hidden'>{t.plug_p}</p>
+				{/* Below sm, and on a screen under 560px tall (a phone held sideways), the lead paragraph is left out: on a phone it took four lines ahead of the list, whose heading and cards already say what the page holds. */}
+				<p className='page-p max-sm:hidden [@media(max-height:560px)]:hidden'>{t.plug_p}</p>
 			</div>
 			<FilterBar>
 				<FilterChips label={t.a_filter}>
@@ -153,9 +154,19 @@ function PluginsPage() {
 								const key = i === 0 ? 'cmd0' : 'cmd1';
 								return (
 									<div key={cmd} className={cliRow}>
-										<span className='flex-auto overflow-x-auto font-mono text-[14px] whitespace-nowrap text-fg'>
+										{/* The command wraps rather than being cut off where the row ends (a phone, an iPad held sideways): a break may come after each slash of the module path, so it breaks between path segments, and only a segment too long for the row breaks inside. */}
+										<span className='min-w-0 flex-auto py-2 font-mono text-[14px] text-fg [overflow-wrap:anywhere]'>
 											<span className='cmd-p'>$ </span>
-											{cmd}
+											{cmd.split('/').map((part, j, all) => (
+												<Fragment key={part + j}>
+													{part}
+													{j < all.length - 1 && (
+														<>
+															/<wbr />
+														</>
+													)}
+												</Fragment>
+											))}
 										</span>
 										<CopyButton text={cmd} copyKey={key} label={t.a_copy_cmd} />
 									</div>

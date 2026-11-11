@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useRef } from 'react';
 
-// The filter bar over a listing (the showcase, the UI libraries and the plugins): a row of chips and the selects beside them. From md up it is a panel that sticks under the header while the list scrolls. Below md it is neither a panel nor sticky, as a sticky bar of wrapped chips covered the cards on a phone: the chips become one row that scrolls sideways, out to the screen's edges, and the selects share the row under it. A screen under 560px tall (a phone held sideways, which is md wide) keeps the panel but does not stick it, as header and panel would leave a strip of the list.
+// The filter bar over a listing (the showcase, the UI libraries and the plugins): a row of chips and the selects beside them. From md up it is a panel that sticks under the header while the list scrolls. Below md it is neither a panel nor sticky, as a sticky bar of wrapped chips covered the cards on a phone: the chips become one row that scrolls sideways, out to the screen's edges, and the selects wrap two to a row under it (see FilterSelects). A screen under 560px tall (a phone held sideways, which is md wide) keeps the panel but does not stick it, as header and panel would leave a strip of the list.
 export function FilterBar({ children }: { children: ReactNode }) {
 	return <div className='sticky top-[72px] z-5 flex [@media(max-height:560px)]:static flex-wrap items-center justify-start gap-3 rounded-card border border-line-2 bg-panel/86 p-2.5 backdrop-blur-[16px] [box-shadow:var(--sh-1)] max-md:static max-md:flex-col max-md:flex-nowrap max-md:items-stretch max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:p-0 max-md:[box-shadow:none] max-md:backdrop-blur-none'>{children}</div>;
 }
@@ -50,15 +50,15 @@ export function FilterChip({ pressed, onClick, count, title, children }: { press
 	);
 }
 
-// The selects of a bar. Every listing keeps them together (`grouped`) in the same normal flow as the chips, so when the bar wraps the next row starts at the same left edge instead of being pushed to the right. Below md they share one row, each taking half of it, a lone one too.
+// The selects of a bar. Every listing keeps them together (`grouped`) in the same normal flow as the chips, so when the bar wraps the next row starts at the same left edge instead of being pushed to the right. Below md they wrap two to a row, each taking half of it, a third goes under the first and takes the rest of the row, and a lone one takes the whole row, so the selected option is not clipped.
 export function FilterSelects({ grouped = false, children }: { grouped?: boolean; children: ReactNode }) {
-	return <div className={grouped ? 'flex flex-wrap items-center gap-x-4 gap-y-3 max-md:flex-nowrap max-md:gap-3' : 'flex gap-3 md:contents'}>{children}</div>;
+	return <div className={grouped ? 'flex flex-wrap items-center gap-x-4 gap-y-3 max-md:gap-3' : 'flex gap-3 md:contents'}>{children}</div>;
 }
 
-// A labelled select. Below md its text is 16px, the smallest size at which iOS does not zoom the page when the select is tapped, and the label goes above it, so the select has its half of the row to itself in every language.
+// A labelled select. Below md its text is 16px, the smallest size at which iOS does not zoom the page when the select is tapped, and the label goes above it, so the select has its half of the row (or the whole row, when it is the last one alone on it) to itself in every language. The half is its basis as well as its cap: flex-1 alone would give it a basis of zero, and the row would never wrap.
 export function FilterSelect({ id, label, value, onChange, children }: { id: string; label: string; value: string; onChange: (value: string) => void; children: ReactNode }) {
 	return (
-		<div className='flex items-center gap-2.5 max-md:min-w-0 max-md:max-w-[calc(50%-6px)] max-md:flex-1 max-md:flex-col max-md:items-stretch max-md:gap-1.5'>
+		<div className='flex items-center gap-2.5 max-md:min-w-0 max-md:flex-1 max-md:basis-[calc(50%-6px)] max-md:flex-col max-md:[&:not(:nth-child(odd):last-child)]:max-w-[calc(50%-6px)] max-md:items-stretch max-md:gap-1.5'>
 			<label htmlFor={id} className='text-[13.5px] font-medium text-fg-2'>
 				{label}
 			</label>

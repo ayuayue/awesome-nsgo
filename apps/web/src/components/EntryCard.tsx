@@ -48,11 +48,11 @@ export function EntryCard({ label, bar, shot, children }: { label: string; bar?:
 	);
 }
 
-// The link at the end of a card's footer row (the docs, the repository), marked as leading off the site with ↗ unless its words already end in one.
+// The link at the end of a card's footer row (the docs, the repository), marked as leading off the site with ↗ unless its words already end in one. It fills the row's 44px height and reaches 8px past its words on each side (the negative margin keeps them where they were), so a tap just above, below or beside the short line of text still lands on it.
 export function BarLink({ href, children }: { href: string; children: ReactNode }) {
 	const marked = typeof children === 'string' && children.trimEnd().endsWith('↗');
 	return (
-		<a className='flex-none text-[13px] font-semibold text-blue-ink no-underline hover:underline' href={href} target='_blank' rel='noopener'>
+		<a className='-mx-2 inline-flex flex-none items-center self-stretch px-2 text-[13px] font-semibold text-blue-ink no-underline hover:underline' href={href} target='_blank' rel='noopener'>
 			{children}
 			{!marked && ' ↗'}
 		</a>

@@ -38,8 +38,8 @@ function ShowcasePage() {
 			<div className='flex flex-col gap-3'>
 				<span className='kicker'>{fill(t.live_badge, { n: APPS.length })}</span>
 				<h1 className='page-h1'>{t.cat_show_name}</h1>
-				{/* Below sm the lead paragraph is left out, as on the other listings: the cards already say what the page holds. */}
-				<p className='page-p max-sm:hidden'>{t.cat_show_desc}</p>
+				{/* Below sm, and on a screen under 560px tall (a phone held sideways), the lead paragraph is left out, as on the other listings: the cards already say what the page holds. */}
+				<p className='page-p max-sm:hidden [@media(max-height:560px)]:hidden'>{t.cat_show_desc}</p>
 			</div>
 			<FilterBar>
 				<FilterChips label={t.a_cats}>

@@ -41,9 +41,9 @@ function UiPage() {
 			<div className='flex flex-col gap-3'>
 				<span className='kicker'>{fill(t.cat_ui_badge, { n: UI_LIBS.length })}</span>
 				<h1 className='page-h1'>{t.cat_ui_name}</h1>
-				{/* Below sm the lead paragraph is left out: on a phone it took four lines ahead of the list, whose heading and cards already say what the page holds. */}
-				<p className='page-p max-sm:hidden'>{t.ui_p}</p>
-				<a className='self-start text-[15px] font-semibold text-blue-ink no-underline hover:underline' href={NATIVE_UI_DOCS} target='_blank' rel='noopener'>
+				{/* Below sm, and on a screen under 560px tall (a phone held sideways), the lead paragraph is left out: on a phone it took four lines ahead of the list, whose heading and cards already say what the page holds. */}
+				<p className='page-p max-sm:hidden [@media(max-height:560px)]:hidden'>{t.ui_p}</p>
+				<a className='inline-flex items-center self-start text-[15px] font-semibold text-blue-ink no-underline hover:underline max-md:min-h-10 pointer-coarse:min-h-10' href={NATIVE_UI_DOCS} target='_blank' rel='noopener'>
 					{t.ui_builtin}
 				</a>
 			</div>
