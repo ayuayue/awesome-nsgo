@@ -2,7 +2,7 @@ import { STATE_DOC, STATE_SOLUTIONS, fill, likeKey, pick } from '@awesome-nsgo/c
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { SetupLine } from '../components/CopyCmd';
 import { CtaBox, CtaHead } from '../components/Cta';
-import { BarLink, CardHead, CardShot, EntryCard, TagList, cardShotImg, showBy, showDesc, showGrid } from '../components/EntryCard';
+import { BarLink, CardHead, CardShot, EntryCard, TagList, cardShotImg, entryGrid, showBy, showDesc } from '../components/EntryCard';
 import { GoCode } from '../components/GoCode';
 import { EmptyLanes } from '../components/marks';
 import { useLang, useT } from '../lib/lang';
@@ -47,7 +47,7 @@ function StatePage() {
 			{listed && (
 				<div className='flex flex-col gap-4'>
 					<h2 className='m-0 text-[22px] font-bold tracking-[-0.02em]'>{t.state_listed_h}</h2>
-					<div className={showGrid}>
+					<div className={entryGrid}>
 						{STATE_SOLUTIONS.map((s, k) => {
 							// As on a plugin card, the install line gives way to an ellipsis before its last path segment, which tells the lines apart.
 							const cut = s.install.lastIndexOf('/') + 1;

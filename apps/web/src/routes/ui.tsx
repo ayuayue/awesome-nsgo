@@ -1,7 +1,7 @@
 import { type AppKind, HAS_SCORES, NATIVE_UI_DOCS, type Surface, UI_KEYS, UI_LIBS, type UiLibKey, fill, likeKey, pick } from '@awesome-nsgo/catalog';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { CtaBox, ctaP } from '../components/Cta';
-import { BarLink, CardHead, CardShot, EntryCard, cardShotImg, showBy, showDesc, showGrid } from '../components/EntryCard';
+import { BarLink, CardHead, CardShot, EntryCard, cardShotImg, entryGrid, showBy, showDesc } from '../components/EntryCard';
 import { FilterBar, FilterChip, FilterChips, FilterSelect, FilterSelects } from '../components/FilterBar';
 import { useLang, useT } from '../lib/lang';
 import { validateUiSearch } from '../lib/page-search';
@@ -69,7 +69,7 @@ function UiPage() {
 					</FilterSelect>
 				</FilterSelects>
 			</FilterBar>
-			<div className={showGrid}>
+			<div className={entryGrid}>
 				{libs.map((l, k) => {
 					// The card opens the library's website when it has one; the bar then links its repository.
 					const site = l.homepage ?? l.url;
@@ -86,15 +86,15 @@ function UiPage() {
 								}
 							>
 								<CardHead as='h2' name={l.name} href={site} item={likeKey.ui(l)}>
-									{/* A UI library's row carries two tags beside the like button: they go on their own line under the author, on every card so the descriptions line up, rather than squeeze its name away. The category is an outlined pill and the language a filled one, drawn as every page draws a language, so the two read as different kinds of label. */}
-									<span className='flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1.5'>
-										<span className={`${showBy} flex-[1_0_100%]`} title={l.author}>
-											<span lang='en'>by</span> {l.author}
-										</span>
-										<span className='kind-tag flex-none self-auto border border-line-2 bg-transparent font-medium text-fg-2'>{t[TAG[l.key]]}</span>
-										<span className={`kind-tag kind-${l.surface} flex-none self-auto`}>{surfLabel[l.surface]}</span>
+									<span className={showBy} title={l.author}>
+										<span lang='en'>by</span> {l.author}
 									</span>
 								</CardHead>
+								{/* A UI library's two tags go on their own row under the head, across the card's width, rather than in the name's column beside the score and like buttons, where on a phone they stacked one above the other. The category is an outlined pill and the language a filled one, drawn as every page draws a language, so the two read as different kinds of label. */}
+								<span className='flex flex-wrap items-center gap-2'>
+									<span className='kind-tag flex-none self-auto border border-line-2 bg-transparent font-medium text-fg-2'>{t[TAG[l.key]]}</span>
+									<span className={`kind-tag kind-${l.surface} flex-none self-auto`}>{surfLabel[l.surface]}</span>
+								</span>
 								<p className={showDesc}>{pick(l.desc, lang)}</p>
 							</EntryCard>
 						</div>
