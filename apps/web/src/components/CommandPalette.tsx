@@ -77,9 +77,9 @@ function Palette({ onClose, onApp, onSubmit }: { onClose: () => void; onApp: (sl
 	};
 
 	return (
-		// Below md the palette is a full-width sheet at the top of the screen, as tall as the dynamic viewport at most, so the input and the first results stay above the on-screen keyboard.
-		<div className='fade fixed inset-0 z-50 flex items-start justify-center bg-scrim px-4 pt-[12vh] pb-4 backdrop-blur-[4px] max-md:p-0 max-md:pt-[env(safe-area-inset-top)]'>
-			<div ref={ref} role='dialog' aria-modal='true' aria-label={t.search} onKeyDown={onKeyDown} className='enter flex max-h-[70vh] w-full max-w-[640px] flex-col overflow-hidden rounded-band border border-line-2 bg-raised [box-shadow:var(--sh-3)] max-md:max-h-[calc(100dvh-env(safe-area-inset-top))] max-md:max-w-none max-md:rounded-t-none max-md:border-x-0 max-md:border-t-0'>
+		// Below md the palette is a full-width sheet at the top of the screen, as tall as the dynamic viewport at most, so the input and the first results stay above the on-screen keyboard. On a short screen (a landscape phone, 500px tall or less) the box keeps its width but likewise starts at the top edge and may fill the height, as the desktop's 12vh gap and 70vh cap left room for under two results.
+		<div className='fade fixed inset-0 z-50 flex items-start justify-center bg-scrim px-4 pt-[12vh] pb-4 backdrop-blur-[4px] max-md:p-0 max-md:pt-[env(safe-area-inset-top)] [@media(max-height:500px)]:pt-[env(safe-area-inset-top)] [@media(max-height:500px)]:pb-0'>
+			<div ref={ref} role='dialog' aria-modal='true' aria-label={t.search} onKeyDown={onKeyDown} className='enter flex max-h-[70vh] w-full max-w-[640px] flex-col overflow-hidden rounded-band border border-line-2 bg-raised [box-shadow:var(--sh-3)] max-md:max-h-[calc(100dvh-env(safe-area-inset-top))] max-md:max-w-none max-md:rounded-t-none max-md:border-x-0 max-md:border-t-0 [@media(max-height:500px)]:max-h-[calc(100dvh-env(safe-area-inset-top))] [@media(max-height:500px)]:rounded-t-none [@media(max-height:500px)]:border-t-0'>
 				<div className='flex items-center gap-3 border-b border-line pr-3 pl-5 max-md:px-6 max-sm:px-4'>
 					<span className='flex text-blue'>
 						<SearchIcon size={20} />
@@ -104,11 +104,11 @@ function Palette({ onClose, onApp, onSubmit }: { onClose: () => void; onApp: (sl
 						aria-controls='palette-list'
 						aria-activedescendant={count > 0 ? `pi-${active}` : undefined}
 					/>
-					<button type='button' onClick={onClose} aria-label={t.close} className='btn-g min-h-8 rounded-full border border-line-2 bg-panel px-3 py-0 text-[12.5px] font-semibold text-fg-2 hover:border-line-3 hover:bg-soft max-md:min-h-10'>
+					<button type='button' onClick={onClose} aria-label={t.close} className='btn-g min-h-8 rounded-full border border-line-2 bg-panel px-3 py-0 text-[12.5px] font-semibold text-fg-2 hover:border-line-3 hover:bg-soft max-md:min-h-10 pointer-coarse:min-h-10'>
 						{t.close}
 					</button>
 				</div>
-				<div id='palette-list' role='listbox' aria-label={t.search} className='overflow-y-auto p-2 max-md:overscroll-contain max-md:px-3 max-md:pb-[calc(8px+env(safe-area-inset-bottom))] max-sm:px-1' ref={listRef}>
+				<div id='palette-list' role='listbox' aria-label={t.search} className='overflow-y-auto p-2 max-md:overscroll-contain max-md:px-3 max-md:pb-[calc(8px+env(safe-area-inset-bottom))] max-sm:px-1 [@media(max-height:500px)]:overscroll-contain [@media(max-height:500px)]:pb-[calc(8px+env(safe-area-inset-bottom))]' ref={listRef}>
 					{!hasQuery && (
 						<>
 							<span className='block px-3 pt-3 pb-1.5 text-[12px] font-semibold text-fg-3'>{t.jump}</span>
@@ -151,8 +151,8 @@ function Palette({ onClose, onApp, onSubmit }: { onClose: () => void; onApp: (sl
 						</>
 					)}
 				</div>
-				{/* The keyboard hint; phones have no arrow keys, so below md it is left out and the list reaches the bottom of the sheet. */}
-				<div className='border-t border-line px-5 py-2.5 text-[12px] text-fg-3 max-md:hidden' aria-hidden='true'>
+				{/* The keyboard hint; phones and tablets have no arrow keys, so below md and with a touch screen's pointer it is left out and the list reaches the bottom of the box. */}
+				<div className='border-t border-line px-5 py-2.5 text-[12px] text-fg-3 max-md:hidden pointer-coarse:hidden' aria-hidden='true'>
 					{t.kbd_hint}
 				</div>
 			</div>

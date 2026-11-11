@@ -35,6 +35,11 @@ export function regionName(country: string, locale: string, unknown: string): st
 	try { return new Intl.DisplayNames([locale], { type: 'region' }).of(country) ?? country; } catch { return country; }
 }
 
+// The scale the viewBox is drawn at inside an svg box of this size: it keeps its aspect and is centred, so the shorter side decides.
+function globeFit(width: number, height: number): number {
+	return Math.min(width / WIDTH, height / HEIGHT);
+}
+
 function shortestLonDelta(from: number, to: number): number {
 	return normalizeLon(to - from);
 }
@@ -56,6 +61,9 @@ export function MetricsGlobe({ regions, regionTotal, locale, labels }: { regions
 	const dragged = useRef(false);
 	const onScreen = useRef(true);
 	const frameRef = useRef<HTMLDivElement>(null);
+	const svgRef = useRef<SVGSVGElement>(null);
+	// How many viewBox units make one of the globe's design pixels: the viewBox shrinks with the panel, so on a phone the country codes, the centre label and the tap circles around the dots would shrink to specks; they are drawn k times larger to stay near their desktop size in CSS pixels, at most twice it.
+	const [k, setK] = useState(1);
 
 	const apply = (next: LonLat) => {
 		centerRef.current = next;
@@ -71,6 +79,17 @@ export function MetricsGlobe({ regions, regionTotal, locale, labels }: { regions
 		const node = frameRef.current;
 		if (!node || typeof IntersectionObserver === 'undefined') return;
 		const observer = new IntersectionObserver(([entry]) => { onScreen.current = entry?.isIntersecting ?? true; });
+		observer.observe(node);
+		return () => observer.disconnect();
+	}, []);
+
+	useEffect(() => {
+		const node = svgRef.current;
+		if (!node || typeof ResizeObserver === 'undefined') return;
+		const observer = new ResizeObserver(([entry]) => {
+			const fit = entry ? globeFit(entry.contentRect.width, entry.contentRect.height) : 0;
+			if (fit > 0) setK(Math.round(Math.min(2, Math.max(1, 1 / fit)) * 100) / 100);
+		});
 		observer.observe(node);
 		return () => observer.disconnect();
 	}, []);
@@ -121,6 +140,8 @@ export function MetricsGlobe({ regions, regionTotal, locale, labels }: { regions
 		.sort((a, b) => a.p.depth - b.p.depth);
 	const focusCountry = hovered ?? selected;
 	const focused = listed.find((region) => region.country === focusCountry) ?? listed[0];
+	// How many of the busiest regions are named on the globe: ten at its full size, fewer as k draws the labels larger, so a phone's globe is not crowded with overlapping codes.
+	const labelled = Math.round(10 / k);
 	const hoveredNode = hovered ? nodes.find((node) => node.region.country === hovered) : undefined;
 
 	const onPointerDown = (event: PointerEvent<SVGSVGElement>) => {
@@ -135,14 +156,17 @@ export function MetricsGlobe({ regions, regionTotal, locale, labels }: { regions
 		const dy = event.clientY - d.y;
 		if (!d.moved && Math.hypot(dx, dy) < 3) return;
 		if (!d.moved) {
+			// A touch or pen gesture that sets off mostly vertical is a page scroll (touch-pan-y hands it to the browser, which cancels the pointer a few moves later), so it must neither tilt the globe nor stop its spin.
+			if (event.pointerType !== 'mouse' && Math.abs(dy) >= Math.abs(dx)) return;
 			// Capture only once it is a drag: capturing on pointerdown would retarget the click away from the region node under the pointer.
 			d.moved = true;
 			event.currentTarget.setPointerCapture(event.pointerId);
 			setSpinning(false);
 			setHovered(null);
 		}
-		// Scale by the rendered size so a drag across the globe turns it about half a revolution on any screen.
-		const scale = 180 / Math.max(1, event.currentTarget.getBoundingClientRect().width);
+		// Scale by the size the viewBox is drawn at, not the svg box it is centred in, so a drag across the globe turns it about half a revolution on any screen.
+		const bounds = event.currentTarget.getBoundingClientRect();
+		const scale = 180 / Math.max(1, WIDTH * globeFit(bounds.width, bounds.height));
 		apply([normalizeLon(d.center[0] - dx * scale), clampLat(d.center[1] + dy * scale)]);
 	};
 	const onPointerUp = (event: PointerEvent<SVGSVGElement>) => {
@@ -157,10 +181,11 @@ export function MetricsGlobe({ regions, regionTotal, locale, labels }: { regions
 			<div className='relative grid grid-cols-[minmax(0,1.45fr)_minmax(250px,0.6fr)] max-lg:grid-cols-1'>
 				<div className='relative flex flex-col border-r border-line-2 max-lg:border-r-0 max-lg:border-b lg:min-h-[460px]'>
 					<div className='pointer-events-none relative z-10 flex items-start justify-between gap-3 p-4 lg:absolute lg:inset-x-0 lg:top-0'>
-						<div className='flex items-center gap-2 rounded-full border border-ok/30 bg-ok-soft px-3 py-1.5 text-[11.5px] font-semibold text-ok'><span className='size-1.5 rounded-full bg-ok motion-safe:animate-[metrics-globe-pulse_1.6s_ease-in-out_infinite] [transform-box:fill-box]' aria-hidden='true' />{labels.live}</div>
+						<div className='flex shrink-0 items-center gap-2 rounded-full border border-ok/30 bg-ok-soft px-3 py-1.5 text-[11.5px] font-semibold whitespace-nowrap text-ok'><span className='size-1.5 rounded-full bg-ok motion-safe:animate-[metrics-globe-pulse_1.6s_ease-in-out_infinite] [transform-box:fill-box]' aria-hidden='true' />{labels.live}</div>
 						<div className='text-right text-[12px] text-fg-3'><div className='text-[18px] font-bold text-blue-ink tabular-nums'>{number(total, locale)}</div><div>{labels.edge(listed.length)}</div></div>
 					</div>
-					<svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role='img' aria-label={labels.title} className='block h-auto w-full flex-1 cursor-grab touch-none select-none active:cursor-grabbing lg:h-full' onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} onPointerLeave={() => { if (!drag.current) setHovered(null); }}>
+					{/* On a touch screen a vertical swipe over the globe scrolls the page and a sideways drag turns it, the drag starting only once the finger moves more sideways than up or down. Below lg its height is capped so a landscape phone or a tablet still sees the whole globe and some of the page around it; the viewBox stays centred in the wider box. */}
+					<svg ref={svgRef} viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role='img' aria-label={labels.title} className='block h-auto w-full flex-1 cursor-grab touch-pan-y select-none active:cursor-grabbing max-lg:max-h-[min(460px,max(300px,75svh))] lg:h-full' onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} onPointerLeave={() => { if (!drag.current) setHovered(null); }}>
 						<defs>
 							<radialGradient id='metrics-globe-fill' cx='38%' cy='32%'><stop offset='0%' style={{ stopColor: 'var(--globe-0)' }} /><stop offset='64%' style={{ stopColor: 'var(--globe-1)' }} /><stop offset='100%' style={{ stopColor: 'var(--globe-2)' }} /></radialGradient>
 							<radialGradient id='metrics-globe-rim' cx='50%' cy='50%' r='50%'><stop offset='86%' style={{ stopColor: INK }} stopOpacity='0' /><stop offset='100%' style={{ stopColor: INK }} stopOpacity='0.28' /></radialGradient>
@@ -179,17 +204,17 @@ export function MetricsGlobe({ regions, regionTotal, locale, labels }: { regions
 						</g>
 						<circle cx={CX} cy={CY} r='16' style={{ fill: INK }} fillOpacity='0.1' className='motion-safe:animate-[metrics-globe-pulse_2s_ease-in-out_infinite] [transform-box:fill-box]' />
 						<circle cx={CX} cy={CY} r='4.5' style={{ fill: INK, stroke: 'var(--globe-0)' }} strokeWidth='1' />
-						<text x={CX} y={CY + 28} textAnchor='middle' style={{ fill: LABEL }} fontSize='9' fontFamily={MONO} letterSpacing='1.5' pointerEvents='none'>{labels.center}</text>
+						<text x={CX} y={CY + 28 * k} textAnchor='middle' style={{ fill: LABEL }} fontSize={9 * k} fontFamily={MONO} letterSpacing={1.5 * k} pointerEvents='none'>{labels.center}</text>
 						{nodes.map(({ region, rank, p }) => {
 							const strong = region.views / peak;
 							const isFocused = focused?.country === region.country;
 							const fade = 0.35 + 0.65 * p.depth;
 							return (
 								<g key={region.country} className='cursor-pointer' style={{ opacity: isFocused ? 1 : fade }} onPointerEnter={() => { if (!drag.current) setHovered(region.country); }} onPointerLeave={() => setHovered(null)} onClick={() => { if (!dragged.current) focus(region.country); }}>
-									<circle cx={p.x} cy={p.y} r={14} fill='transparent' />
+									<circle cx={p.x} cy={p.y} r={14 * k} fill='transparent' />
 									<circle cx={p.x} cy={p.y} r={isFocused ? 13 : 6 + strong * 6} fillOpacity={isFocused ? 0.22 : 0.1} className='motion-safe:animate-[metrics-globe-pulse_2.2s_ease-in-out_infinite] [transform-box:fill-box]' style={{ fill: INK, animationDelay: `${rank * -0.16}s` }} />
 									<circle cx={p.x} cy={p.y} r={isFocused ? 4.5 : 2 + strong * 2.5} style={{ fill: isFocused ? HI : INK, stroke: 'var(--globe-0)' }} strokeWidth={isFocused ? 1.5 : 0.8} />
-									{(isFocused || rank < 10) && <text x={p.x + 8} y={p.y - 7} style={{ fill: isFocused ? HI : LABEL }} fontSize={isFocused ? 11 : 9} fontWeight={isFocused ? 700 : 400} fontFamily={MONO} pointerEvents='none'>{region.country}</text>}
+									{(isFocused || rank < labelled) && <text x={p.x + 8 * k} y={p.y - 7 * k} style={{ fill: isFocused ? HI : LABEL }} fontSize={(isFocused ? 11 : 9) * k} fontWeight={isFocused ? 700 : 400} fontFamily={MONO} pointerEvents='none'>{region.country}</text>}
 								</g>
 							);
 						})}
@@ -225,9 +250,9 @@ export function MetricsGlobe({ regions, regionTotal, locale, labels }: { regions
 							const isFocused = focused?.country === region.country;
 							return (
 								<li key={region.country}>
-									<button type='button' aria-pressed={selected === region.country} onClick={() => focus(region.country)} onMouseEnter={() => setHovered(region.country)} onMouseLeave={() => setHovered(null)} className={`relative flex w-full items-center gap-2 rounded-lg border px-2.5 py-1.5 text-left text-fg-2 transition-[background,border-color] hover:border-line-2 hover:bg-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue ${isFocused ? 'border-blue/35 bg-blue-soft hover:border-blue/35 hover:bg-blue-soft' : 'border-transparent bg-transparent'}`}>
+									<button type='button' aria-pressed={selected === region.country} onClick={() => focus(region.country)} onMouseEnter={() => setHovered(region.country)} onMouseLeave={() => setHovered(null)} className={`relative flex w-full items-center gap-2 rounded-lg border px-2.5 py-1.5 text-left text-fg-2 pointer-coarse:py-2.5 transition-[background,border-color] hover:border-line-2 hover:bg-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue ${isFocused ? 'border-blue/35 bg-blue-soft hover:border-blue/35 hover:bg-blue-soft' : 'border-transparent bg-transparent'}`}>
 										<span className={`relative w-5 shrink-0 font-mono text-[10px] ${isFocused ? 'text-fg-2' : 'text-fg-3'}`}>{index + 1}</span>
-										<span className='relative min-w-0 flex-1 truncate text-[12px]'>{regionName(region.country, locale, labels.unknown)}</span>
+										<span className='relative min-w-0 flex-1 truncate text-[12px] max-sm:leading-tight max-sm:whitespace-normal'>{regionName(region.country, locale, labels.unknown)}</span>
 										<span className={`relative font-mono text-[11px] tabular-nums ${isFocused ? 'text-fg-2' : 'text-fg-3'}`}>{number(region.views, locale)}</span>
 										<span className='relative w-12 text-right font-mono text-[11px] text-blue-ink tabular-nums'>{percent(region.views, total, locale)}</span>
 									</button>

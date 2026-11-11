@@ -43,7 +43,7 @@ function addedOn(added: string, lang: LangCode): string {
 // Keep URLs breakable when a narrow column needs it, but let the browser use normal punctuation opportunities first.
 const urlDd = 'font-mono text-[12.5px] wrap-break-word';
 
-// The app's facts as a docs-style info table: a label column and a value column, rows split by hairlines. The platforms are not among them: the page lists them under the screenshot, with their device glyphs.
+// The app's facts as a docs-style info table: a label column and a value column, rows split by hairlines. The platforms are not among them: the page lists them under the screenshot, with their device glyphs. Its links stay inline and are padded to about the row's height, so each is a tap target that tall without moving the text.
 export function AppFacts({ view, kindLabel }: { view: AppView; kindLabel: string }) {
 	const t = useT();
 	const lang = useLang();
@@ -53,7 +53,7 @@ export function AppFacts({ view, kindLabel }: { view: AppView; kindLabel: string
 	const group = appGroup(app);
 	const score = entryScore(likeKey.app(app));
 	return (
-		<dl className='m-0 grid grid-cols-[auto_minmax(0,1fr)] overflow-hidden rounded-card border border-line-2 bg-panel text-[14px] [box-shadow:var(--sh-1)] [&>dt]:border-b [&>dd]:border-b [&>dt]:border-line [&>dd]:border-line [&>dt]:py-2.5 [&>dd]:py-2.5 [&>dt]:pl-4 [&>dt]:pr-3 [&>dd]:pr-4 [&>dd]:m-0 [&>dt]:text-fg-3 [&>dd]:text-fg [&>dt:nth-last-child(2)]:border-b-0 [&>dd:last-child]:border-b-0 [&_a]:text-fg [&_a]:underline [&_a]:decoration-line-3 [&_a]:underline-offset-[0.2em] [&_a:hover]:text-blue-ink [&_a:hover]:decoration-current'>
+		<dl className='m-0 grid grid-cols-[auto_minmax(0,1fr)] overflow-hidden rounded-card border border-line-2 bg-panel text-[14px] [box-shadow:var(--sh-1)] [&>dt]:border-b [&>dd]:border-b [&>dt]:border-line [&>dd]:border-line [&>dt]:py-2.5 [&>dd]:py-2.5 [&>dt]:pl-4 [&>dt]:pr-3 [&>dd]:pr-4 [&>dd]:m-0 [&>dt]:text-fg-3 [&>dd]:text-fg [&>dt:nth-last-child(2)]:border-b-0 [&>dd:last-child]:border-b-0 [&_a]:text-fg [&_a]:underline [&_a]:decoration-line-3 [&_a]:underline-offset-[0.2em] [&_a:hover]:text-blue-ink [&_a:hover]:decoration-current [&_a]:py-2.5'>
 			<dt>{t.f_author}</dt>
 			<dd>
 				{profile ? (

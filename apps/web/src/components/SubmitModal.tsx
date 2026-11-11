@@ -22,7 +22,7 @@ const ERR = '-mt-1.5 mb-0 text-[13px] text-err';
 const TIP = 'm-0 text-[13px] text-fg-3';
 // A bordered secondary button; with .btn-g its hover is restated here, as these utilities outrank .btn-g's hover rule.
 const LINE_BTN = 'btn-g min-h-[46px] rounded-full border border-line-3 bg-panel px-5 py-0 text-[14px] font-semibold text-fg hover:not-disabled:bg-soft disabled:cursor-not-allowed disabled:text-fg-3';
-// The footer's buttons; below md they share the row under the hint and fill it.
+// The footer's buttons; below md they share the row under the hint and fill it, and from md up the two links of the form without the bot share the row under the hint too, as beside it the second one fell alone onto a third row.
 const FOOT_BTN = 'inline-flex min-h-[46px] items-center rounded-full px-5 py-0 text-[14px] no-underline max-md:flex-auto max-md:justify-center max-md:text-center';
 const HINT = 'm-0 min-w-0 flex-[1_1_200px] text-[13px] leading-[1.5] max-md:basis-full';
 
@@ -387,7 +387,7 @@ function Modal() {
 						)
 					) : (
 						<>
-							<p className={`${HINT} text-fg-3`} aria-live='polite'>
+							<p className={`${HINT} basis-full text-fg-3`} aria-live='polite'>
 								{hint}
 							</p>
 							<a className={`btn-g ${FOOT_BTN} border border-line-3 bg-panel font-semibold text-fg hover:bg-soft`} href={edit} target='_blank' rel='noopener'>

@@ -1,14 +1,14 @@
 import { useT } from '../lib/lang';
 import { type CopyKey, useSite } from '../lib/site';
 
-// A copy button beside a command or a snippet; it reads "copied", in the link blue, for a moment after its copy. The command beside it ellipsizes, so the button keeps its width: in a phone's row its "copied" label used to wrap onto two lines. Below md it grows to 40px, the smallest touch target the phone layout allows. `small` is the size on an entry card's setup line.
+// A copy button beside a command or a snippet; it reads "copied", in the link blue, for a moment after its copy. The command beside it ellipsizes or wraps, so the button keeps its width: in a phone's row its "copied" label used to wrap onto two lines. Below md, or with a coarse pointer (a tablet, a phone held sideways), it grows to 40px, the smallest touch target the phone layout allows. `small` is the size on an entry card's setup line.
 export function CopyButton({ text, copyKey, label, small = false }: { text: string; copyKey: CopyKey; label: string; small?: boolean }) {
 	const t = useT();
 	const { copy, copied } = useSite();
 	const size = small ? 'min-h-7 min-w-14 px-2.5 text-[12px]' : 'min-h-9 min-w-[72px] px-3 text-[13px]';
 	const done = copied === copyKey;
 	return (
-		<button type='button' className={`flex-none rounded-[9px] border border-line-2 bg-panel py-0 font-semibold whitespace-nowrap transition-[background,color] duration-150 hover:bg-soft max-md:min-h-10 ${done ? 'text-blue-ink' : 'text-fg-2 hover:text-fg'} ${size}`} onClick={() => copy(text, copyKey)} aria-label={label}>
+		<button type='button' className={`flex-none rounded-[9px] border border-line-2 bg-panel py-0 font-semibold whitespace-nowrap transition-[background,color] duration-150 hover:bg-soft max-md:min-h-10 pointer-coarse:min-h-10 ${done ? 'text-blue-ink' : 'text-fg-2 hover:text-fg'} ${size}`} onClick={() => copy(text, copyKey)} aria-label={label}>
 			{done ? t.copied : t.copy}
 		</button>
 	);

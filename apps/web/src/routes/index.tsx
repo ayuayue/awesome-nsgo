@@ -57,6 +57,22 @@ function tokens(cmd: string): { w: string; c: string }[] {
 	});
 }
 
+// One word of a command, kept whole. The module path is wider than a phone, so on screens too narrow to hold it on one line it may break after any of its slashes, though never inside a part, where a break at the hyphen or between letters would read as a different command. `wrap` is the class (an inline variant capped at a max width, not spelled out here, as Tailwind would read the spelling as a class) that shows the break points below that width (each terminal has its own); a hidden <wbr> is no break point, while one that is shown breaks even inside nowrap text in Chrome.
+function Word({ k, wrap }: { k: { w: string; c: string }; wrap: string }) {
+	if (k.c !== 'tk-p') return <span className={`${k.c} whitespace-nowrap`}>{k.w}</span>;
+	const parts = k.w.split('/');
+	return (
+		<span className={k.c}>
+			{parts.map((part, i) => (
+				<Fragment key={i}>
+					{i > 0 && <wbr className={`hidden ${wrap}`} />}
+					<span className='whitespace-nowrap'>{i < parts.length - 1 ? `${part}/` : part}</span>
+				</Fragment>
+			))}
+		</span>
+	);
+}
+
 function Hero() {
 	const t = useT();
 	const { copy, copied } = useSite();
@@ -80,8 +96,8 @@ function Hero() {
 			<div aria-hidden='true' className='hm-floor-wrap'>
 				<div className='hm-floor' />
 			</div>
-			<div className={`${SHELL} relative flex flex-col items-center pt-16 text-center max-sm:pt-10`}>
-				<Link to='/showcase' search={{ sort: 'newest' }} className='rise [animation-delay:0.05s] btn-g inline-flex h-9 items-center gap-2.5 border border-line-2 bg-panel pr-4 pl-3 text-[14px] font-medium text-fg no-underline max-md:h-11'>
+			<div className={`${SHELL} relative flex flex-col items-center pt-16 text-center max-sm:pt-10 [@media(max-height:500px)]:pt-6`}>
+				<Link to='/showcase' search={{ sort: 'newest' }} className='rise [animation-delay:0.05s] btn-g inline-flex h-9 items-center gap-2.5 border border-line-2 bg-panel pr-4 pl-3 text-[14px] font-medium text-fg no-underline max-md:h-11 pointer-coarse:h-11'>
 					<span className='hm-live' aria-hidden='true' />
 					{fill(t.live_badge, { n: APPS.length })}
 					<span className='arrow' aria-hidden='true'>
@@ -89,16 +105,16 @@ function Hero() {
 					</span>
 				</Link>
 
-				<h1 className='rise [animation-delay:0.15s] m-0 mt-7 text-[length:clamp(28px,4.2vw,56px)] leading-[1.2] font-bold tracking-[-0.02em]'>
+				<h1 className='rise [animation-delay:0.15s] m-0 mt-7 text-[length:clamp(28px,4.2vw,56px)] [@media(max-height:500px)]:mt-4 leading-[1.2] font-bold tracking-[-0.02em]'>
 					{t.hm_h1}
 					<span className='sr-only'> {words.join(', ')}</span>
 				</h1>
-				<ParticleWord words={words} font={DISPLAY_FONT} onWord={setWord} className='rise [animation-delay:0.25s] block h-[clamp(140px,22vw,290px)] w-full cursor-crosshair text-fg' />
+				<ParticleWord words={words} font={DISPLAY_FONT} onWord={setWord} className='rise [animation-delay:0.25s] block h-[clamp(140px,22vw,290px)] w-full [@media(max-height:500px)]:h-[96px] cursor-crosshair text-fg' />
 
 				<ul aria-label={t.f_platform} className='rise [animation-delay:0.32s] m-0 flex list-none flex-wrap justify-center gap-2 p-0'>
 					{PLATFORMS.map(({ p, n }, i) => (
 						<li key={p}>
-							<Link to='/showcase' search={{ platform: p }} data-on={i === word ? '' : undefined} className={`hm-chip inline-flex h-8 items-center gap-1.5 rounded-full border border-line-2 bg-panel px-3 text-[13px] font-medium no-underline max-md:h-10 ${n ? 'text-fg' : 'text-fg-3'}`}>
+							<Link to='/showcase' search={{ platform: p }} data-on={i === word ? '' : undefined} className={`hm-chip inline-flex h-8 items-center gap-1.5 rounded-full border border-line-2 bg-panel px-3 text-[13px] font-medium no-underline max-md:h-10 pointer-coarse:h-10 ${n ? 'text-fg' : 'text-fg-3'}`}>
 								{t[`platform_${p}`]}
 								{n > 0 && <span className='font-mono text-[11px] opacity-70 tabular-nums'>{n}</span>}
 							</Link>
@@ -122,15 +138,15 @@ function Hero() {
 				{/* The install command for the template picked in the tabs, highlighted like a shell, with its copy button. The tab lives in the address (?install=). */}
 				<div className='rise [animation-delay:0.56s] hm-term mt-8 w-full max-w-[760px] overflow-hidden rounded-[14px] text-left [box-shadow:var(--sh-3)]'>
 					<div className='flex flex-wrap items-center gap-1 border-b border-white/10 py-1.5 pr-1.5 pl-4'>
-						<span className='mr-2 text-[12.5px] text-[#a1a1a1]'>{t.hm_term}</span>
+						<span className='mr-2 text-[12.5px] text-[#a1a1a1] max-[390px]:hidden'>{t.hm_term}</span>
 						<div role='tablist' aria-label={t.a_install} className='flex gap-0.5'>
 							{INSTALL_TABS.map((it) => (
-								<button key={it.key} type='button' role='tab' aria-selected={tab === it.key} onClick={() => setTab(it.key)} className='hm-tab min-h-8 min-w-11 rounded-[8px] border-0 bg-transparent px-3 font-mono text-[12.5px] text-[#a1a1a1] max-md:min-h-10'>
+								<button key={it.key} type='button' role='tab' aria-selected={tab === it.key} onClick={() => setTab(it.key)} className='hm-tab min-h-8 min-w-11 rounded-[8px] border-0 bg-transparent px-3 font-mono text-[12.5px] text-[#a1a1a1] max-md:min-h-10 pointer-coarse:min-h-10'>
 									{it.label}
 								</button>
 							))}
 						</div>
-						<button type='button' onClick={() => copy(INSTALL_CMDS[tab], 'cmd')} aria-label={t.a_copy_install} className='ml-auto min-h-8 min-w-[72px] rounded-[8px] border-0 bg-[#ededed] px-3 text-[13px] font-semibold text-[#0a0a0a] max-md:min-h-10'>
+						<button type='button' onClick={() => copy(INSTALL_CMDS[tab], 'cmd')} aria-label={t.a_copy_install} className='ml-auto min-h-8 min-w-[72px] rounded-[8px] border-0 bg-[#ededed] px-3 text-[13px] font-semibold text-[#0a0a0a] max-md:min-h-10 pointer-coarse:min-h-10'>
 							{copied === 'cmd' ? t.copied : t.copy}
 						</button>
 					</div>
@@ -139,7 +155,7 @@ function Hero() {
 						{tokens(INSTALL_CMDS[tab]).map((k, i) => (
 							<Fragment key={i}>
 								{i > 0 && ' '}
-								<span className={`${k.c} whitespace-nowrap`}>{k.w}</span>
+								<Word k={k} wrap='max-[381px]:inline' />
 							</Fragment>
 						))}
 						<span className='hm-caret' aria-hidden='true' />
@@ -178,7 +194,7 @@ function Showcase() {
 						{fill(t.feat_all, { n: APPS.length })} <span className='arrow'>→</span>
 					</Link>
 				</div>
-				<div className='grid grid-cols-[repeat(auto-fill,minmax(min(100%,270px),1fr))] gap-4'>
+				<div className='grid grid-cols-[repeat(auto-fill,minmax(max(min(100%,270px),calc((100%-48px)/4)),1fr))] gap-4'>
 					{FEATURED_APPS.map((a, k) => (
 						<AppCard key={a.slug} app={a} k={k} as='h3' like={false} score={false} />
 					))}
@@ -216,7 +232,7 @@ function BuildOnce() {
 								{ln.map((k, j) => (
 									<Fragment key={j}>
 										{j > 0 && ' '}
-										<span className={`${k.c} whitespace-nowrap`}>{k.w}</span>
+										<Word k={k} wrap='max-[404px]:inline' />
 									</Fragment>
 								))}
 								{i === lines.length - 1 && <span className='hm-caret' aria-hidden='true' />}
@@ -225,7 +241,7 @@ function BuildOnce() {
 					</div>
 				</div>
 				{desk && (
-					<div aria-hidden='true' className='relative h-[460px] min-w-0 flex-[1_1_500px] max-sm:h-[300px]'>
+					<div aria-hidden='true' className='relative mx-auto h-[460px] max-w-[800px] min-w-0 flex-[1_1_500px] max-sm:h-[300px] max-sm:max-w-[480px]'>
 						<div className='hm-pop absolute top-8 left-0 w-[78%]'>
 							<div className='hm-bob overflow-hidden rounded-[12px] border border-line-2 bg-white [box-shadow:var(--sh-3)]'>
 								<div className='flex h-[30px] items-center gap-[7px] border-b border-[#e5e7eb] bg-[#f3f4f6] px-3'>
@@ -253,7 +269,7 @@ function BuildOnce() {
 									<span className='absolute top-2 left-1/2 h-3.5 w-12 -translate-x-1/2 rounded-[10px] bg-[#0a0a0a] max-sm:h-2.5 max-sm:w-8' />
 								</div>
 							</div>
-							<span className='mt-3 block text-center text-[12px] text-fg-3'>iOS</span>
+							<span className='mx-auto mt-3 block w-fit rounded-full border border-line-2 bg-panel px-2 py-0.5 text-center text-[12px] text-fg-3'>iOS</span>
 						</div>
 					</div>
 				)}
@@ -292,7 +308,7 @@ function PluginRows() {
 					<div key={r} className='hm-row' data-dir={r === 1 ? 'r' : undefined}>
 						{[0, 1].map((copyIdx) =>
 							row.map((p) => (
-								<Link key={`${copyIdx}-${p.slug}`} to='/plugins' aria-hidden={copyIdx === 1 ? true : undefined} tabIndex={copyIdx === 1 ? -1 : undefined} className='btn-g inline-flex max-w-[460px] flex-none items-baseline gap-2.5 border border-line-2 bg-panel px-5 py-3.5 whitespace-nowrap text-fg no-underline'>
+								<Link key={`${copyIdx}-${p.slug}`} to='/plugins' aria-hidden={copyIdx === 1 ? true : undefined} tabIndex={copyIdx === 1 ? -1 : undefined} className='btn-g inline-flex max-w-[460px] flex-none max-sm:box-border max-sm:max-w-[min(460px,80vw)] items-baseline gap-2.5 border border-line-2 bg-panel px-5 py-3.5 whitespace-nowrap text-fg no-underline'>
 									<span className='text-[15.5px] font-bold'>{p.name}</span>
 									<span className='truncate text-[14px] text-fg-3'>{pick(p.desc, lang)}</span>
 								</Link>

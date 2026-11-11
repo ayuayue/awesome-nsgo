@@ -1,6 +1,6 @@
 /* The like and score buttons and the score's chip, footer row and breakdown (components/Like.tsx, components/Score.tsx). They stay named classes because both looks render these components: the retro look draws the same class names in retro/retro.css, and each look's stylesheet draws its own. The like button's classes are passed by the original look's pages (like-btn, like-float over a screenshot, and like-end to push it to the end of a card's head).
 
-Below md the buttons grow to 40px, the smallest touch target the phone layout allows. */
+Below md, or with a coarse pointer (a tablet, a phone held sideways), the buttons grow to 40px, the smallest touch target the phone layout allows. */
 /* Likes (components/Like.tsx): a heart and a count, on every entry card and the app page. */
 .like-btn {
 	display: inline-flex;
@@ -17,6 +17,9 @@ Below md the buttons grow to 40px, the smallest touch target the phone layout al
 	cursor: pointer;
 	transition: color 0.15s, border-color 0.15s, background 0.15s, transform 0.15s ease;
 	@variant max-md {
+		min-height: 40px;
+	}
+	@variant pointer-coarse {
 		min-height: 40px;
 	}
 }
@@ -78,6 +81,12 @@ Below md the buttons grow to 40px, the smallest touch target the phone layout al
 	font-weight: 500;
 	color: var(--color-fg-3);
 }
+/* Below xs the score button in a card's head drops the word and keeps the dot and the total (the chip's label still names it), so the name beside the two buttons has room for two lines instead of being clamped to a few characters. */
+.like-end .score-chip-k {
+	@variant max-xs {
+		display: none;
+	}
+}
 /* The button that opens the breakdown, drawn as the like button beside it is; it keeps its width, so the name beside it gives way rather than the badge. */
 .score-btn {
 	display: inline-flex;
@@ -94,6 +103,9 @@ Below md the buttons grow to 40px, the smallest touch target the phone layout al
 	cursor: pointer;
 	transition: color 0.15s, border-color 0.15s;
 	@variant max-md {
+		min-height: 40px;
+	}
+	@variant pointer-coarse {
 		min-height: 40px;
 	}
 }
@@ -327,4 +339,10 @@ Below md the buttons grow to 40px, the smallest touch target the phone layout al
 }
 .score-links a {
 	color: var(--color-blue-ink);
+	/* With a finger the two links are 40px tall targets rather than 21px lines of text; the row's gap already keeps them apart. */
+	@variant pointer-coarse {
+		display: inline-flex;
+		align-items: center;
+		min-height: 40px;
+	}
 }

@@ -22,7 +22,7 @@ function MetricCard({ label, value, hint, accent = false }: { label: string; val
 		<div className={`flex min-w-0 flex-col rounded-card border p-5 [box-shadow:var(--sh-1)] max-sm:p-4 ${accent ? 'border-blue/25 bg-blue-soft' : 'border-line-2 bg-panel'}`}>
 			<p className={`m-0 text-[13px] font-semibold ${accent ? 'text-fg-2' : 'text-fg-3'}`}>{label}</p>
 			<p className={`m-0 mt-3 text-[32px] leading-none font-bold tracking-[-0.03em] tabular-nums max-sm:text-[28px] ${accent ? 'text-blue-ink' : 'text-fg'}`}>{value}</p>
-			{hint && <p className={`m-0 mt-2.5 truncate text-[12px] ${accent ? 'text-fg-2' : 'text-fg-3'}`} title={hint}>{hint}</p>}
+			{hint && <p className={`m-0 mt-2.5 line-clamp-2 text-[12px] ${accent ? 'text-fg-2' : 'text-fg-3'}`} title={hint}>{hint}</p>}
 		</div>
 	);
 }
@@ -56,7 +56,7 @@ function ViewChart({ days, locale, label }: { days: { day: string; views: number
 	useEffect(() => {
 		const node = frame.current;
 		if (!node || typeof ResizeObserver === 'undefined') return;
-		const observer = new ResizeObserver(([entry]) => { if (entry) setWidth(Math.max(260, Math.round(entry.contentRect.width))); });
+		const observer = new ResizeObserver(([entry]) => { if (entry) setWidth(Math.max(200, Math.round(entry.contentRect.width))); });
 		observer.observe(node);
 		return () => observer.disconnect();
 	}, []);
@@ -91,7 +91,8 @@ function ViewChart({ days, locale, label }: { days: { day: string; views: number
 				<div className='text-fg-3'>{shortDay(active.day, locale)}</div>
 				<div className='mt-0.5 text-[15px] font-bold text-blue-ink tabular-nums'>{number(active.views, locale)}</div>
 			</div>}
-			<svg viewBox={`0 0 ${width} ${height}`} role='img' aria-label={label} className='block h-auto w-full touch-pan-y' onPointerMove={setActiveFromPointer} onPointerDown={setActiveFromPointer} onPointerLeave={() => setActiveIndex(null)}>
+			{/* A lifted finger fires pointerleave too, so only a mouse leaving clears the day's value; after a tap it stays up until the next tap. */}
+			<svg viewBox={`0 0 ${width} ${height}`} role='img' aria-label={label} className='block h-auto w-full touch-pan-y' onPointerMove={setActiveFromPointer} onPointerDown={setActiveFromPointer} onPointerLeave={(event) => { if (event.pointerType === 'mouse') setActiveIndex(null); }}>
 				<defs>
 					<linearGradient id='metrics-area' x1='0' y1='0' x2='0' y2='1'>
 						<stop offset='0%' style={{ stopColor: 'var(--color-blue)' }} stopOpacity='0.22' />
@@ -181,7 +182,7 @@ function MetricsPage() {
 					{partialRange && data?.since && <span className='rounded-full border border-dev/30 bg-dev-soft px-2.5 py-0.5 text-[12px] font-medium text-dev'>{fill(t.metrics_since, { x: shortDay(data.since, locale) })}</span>}
 				</div>
 				<div role='tablist' aria-label={t.metrics_range} className='flex gap-1 rounded-full bg-soft p-1'>
-					{RANGES.map((n) => <button key={n} type='button' role='tab' aria-selected={range === n} onClick={() => setRange(n)} className='seg-tab min-h-8 rounded-full border-0 bg-transparent px-3.5 text-[13px] font-semibold text-fg-2 transition-[background,color,box-shadow] hover:text-fg aria-selected:bg-panel aria-selected:text-fg aria-selected:[box-shadow:var(--sh-1),0_0_0_1px_var(--color-line-2)] max-md:min-h-10'>{t[`metrics_${n}d` as 'metrics_7d' | 'metrics_30d' | 'metrics_90d']}</button>)}
+					{RANGES.map((n) => <button key={n} type='button' role='tab' aria-selected={range === n} onClick={() => setRange(n)} className='seg-tab min-h-8 rounded-full border-0 bg-transparent px-3.5 text-[13px] font-semibold text-fg-2 transition-[background,color,box-shadow] hover:text-fg aria-selected:bg-panel aria-selected:text-fg aria-selected:[box-shadow:var(--sh-1),0_0_0_1px_var(--color-line-2)] max-md:min-h-10 pointer-coarse:min-h-10'>{t[`metrics_${n}d` as 'metrics_7d' | 'metrics_30d' | 'metrics_90d']}</button>)}
 				</div>
 			</div>
 			{loading ? <div className='rounded-card border border-line-2 bg-panel p-10 text-center text-fg-3'>{t.metrics_loading}</div> : error || !data ? <div className='rounded-card border border-dashed border-line-3 bg-panel p-10 text-center text-fg-2'>{reason === 'not_configured' ? t.metrics_not_configured : t.metrics_unavailable}</div> : (

@@ -59,6 +59,7 @@ export function CategoryPage({ cat, copy, items }: { cat: SubmitCat; copy: Categ
 	const t = useT();
 	const { openSubmit } = useSite();
 	const listed = items.length > 0;
+	const withShots = items.some((x) => x.image);
 	return (
 		<section className='page enter gap-10 max-sm:gap-6'>
 			<div className='flex flex-col gap-3'>
@@ -66,8 +67,8 @@ export function CategoryPage({ cat, copy, items }: { cat: SubmitCat; copy: Categ
 					{listed ? copy.count : copy.badge}
 				</span>
 				<h1 className='page-h1'>{copy.name}</h1>
-				{/* As on the state page, the lead paragraph is left out on a phone, where the cards already say what the page holds. */}
-				<p className='page-p max-sm:hidden'>{copy.lead}</p>
+				{/* As on the state page, the lead paragraph is left out on a phone, upright or held sideways (a screen under 560px tall), where the cards already say what the page holds. */}
+				<p className='page-p max-sm:hidden [@media(max-height:560px)]:hidden'>{copy.lead}</p>
 			</div>
 
 			{listed && (
@@ -84,9 +85,10 @@ export function CategoryPage({ cat, copy, items }: { cat: SubmitCat; copy: Categ
 										label={`github.com/${x.repo}`}
 										bar={x.homepage && <BarLink href={x.url}>{t.on_github}</BarLink>}
 										shot={
-											x.image && (
-												<CardShot href={site} className='aspect-[1200/630]'>
-													<img className={cardShotImg} src={x.image} alt='' width={1200} height={630} loading={k === 0 ? 'eager' : 'lazy'} fetchPriority={k === 0 ? 'high' : undefined} decoding='async' />
+											// Beside a card with a screenshot, one without gets its name on a dot field of the same size, as on the UI library page: cards in a row share its height, and without the well the spare height went to the description as an empty block. When no card in the list has a screenshot, none gets the well.
+											(x.image || withShots) && (
+												<CardShot href={site} className={`aspect-[1200/630] ${x.image ? '' : 'dots'}`}>
+													{x.image ? <img className={cardShotImg} src={x.image} alt='' width={1200} height={630} loading={k === 0 ? 'eager' : 'lazy'} fetchPriority={k === 0 ? 'high' : undefined} decoding='async' /> : <span className='inline-flex h-8 items-center rounded-full border border-line-2 bg-panel px-3.5 text-[13px] font-semibold text-fg-3'>{x.name}</span>}
 												</CardShot>
 											)
 										}

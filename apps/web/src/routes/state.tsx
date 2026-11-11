@@ -19,6 +19,9 @@ export const Route = createFileRoute('/state')({
 
 type BlockId = StateBlock;
 
+// Whether any listed solution has a screenshot, which gives the ones without it a placeholder well.
+const stateShots = STATE_SOLUTIONS.some((s) => s.image);
+
 function StatePage() {
 	const t = useT();
 	const lang = useLang();
@@ -40,8 +43,8 @@ function StatePage() {
 					{listed ? fill(t.cat_state_count, { n: STATE_SOLUTIONS.length }) : t.cat_state_badge}
 				</span>
 				<h1 className='page-h1'>{t.cat_state_name}</h1>
-				{/* Below sm the lead paragraph is left out: on a phone it took four lines ahead of the list, whose heading and cards already say what the page holds. */}
-				<p className='page-p max-sm:hidden'>{t.state_p}</p>
+				{/* Below sm, and on a screen under 560px tall (a phone held sideways), the lead paragraph is left out: on a phone it took four lines ahead of the list, whose heading and cards already say what the page holds. */}
+				<p className='page-p max-sm:hidden [@media(max-height:560px)]:hidden'>{t.state_p}</p>
 			</div>
 
 			{listed && (
@@ -60,10 +63,10 @@ function StatePage() {
 										label={`github.com/${s.repo}`}
 										bar={s.homepage && <BarLink href={s.url}>{t.on_github}</BarLink>}
 										shot={
-											// A state solution's screenshot is its 1200x630 social card, shown whole.
-											s.image && (
-												<CardShot href={site} className='aspect-[1200/630]'>
-													<img className={cardShotImg} src={s.image} alt='' width={1200} height={630} loading={k === 0 ? 'eager' : 'lazy'} fetchPriority={k === 0 ? 'high' : undefined} decoding='async' />
+											// A state solution's screenshot is its 1200x630 social card, shown whole. Beside a card with one, a card without gets its name on a dot field of the same size, so the row's shared height does not turn into an empty block under its description; when no solution has a screenshot, none gets the well.
+											(s.image || stateShots) && (
+												<CardShot href={site} className={`aspect-[1200/630] ${s.image ? '' : 'dots'}`}>
+													{s.image ? <img className={cardShotImg} src={s.image} alt='' width={1200} height={630} loading={k === 0 ? 'eager' : 'lazy'} fetchPriority={k === 0 ? 'high' : undefined} decoding='async' /> : <span className='inline-flex h-8 items-center rounded-full border border-line-2 bg-panel px-3.5 text-[13px] font-semibold text-fg-3'>{s.name}</span>}
 												</CardShot>
 											)
 										}

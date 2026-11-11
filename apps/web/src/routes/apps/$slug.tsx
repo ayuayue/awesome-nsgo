@@ -18,7 +18,8 @@ export const Route = createFileRoute('/apps/$slug')({
 	component: AppPage,
 });
 
-const crumbLink = 'text-fg-2 no-underline hover:text-blue-ink';
+// The crumbs stay inline, so their padding (cancelled sideways by a negative margin) makes a tap target about 40px tall and 16px wider than the word without moving anything in the row.
+const crumbLink = '-mx-2 px-2 py-3 text-fg-2 no-underline hover:text-blue-ink';
 // The chevron between two crumbs.
 const crumbSep = "before:mr-2 before:text-line-3 before:content-['›']";
 // Headings in Chinese, Japanese and Korean keep a looser line and almost no negative tracking.
@@ -36,9 +37,12 @@ function AppPage() {
 	const kindLabel = t[`kind_${app.kind}`];
 	const group = appGroup(app);
 
-	// The hero: the icon beside what the app is, then the actions. The body: the screenshot, the platforms it runs on and the description, with the facts, the score and the badge beside them (under them below split), then the author's other apps and the previous and next apps.
+	// The score breakdown, which the facts' score links to; its margin keeps the jump clear of the sticky site header.
+	const breakdown = <ScoreBreakdown item={likeKey.app(app)} id='score' className='scroll-mt-24 rounded-card border border-line-2 bg-panel px-5 py-[18px] max-sm:px-4' />;
+
+	// The hero: the icon beside what the app is, then the actions. The body: the screenshot, the platforms it runs on and the description, with the facts, the score and the badge beside them (under them below split), then the author's other apps and the previous and next apps. An app without a screenshot has too little in the main column to stand beside all three, so its score moves under the description there. On a short screen (a phone held sideways) the sections close up so the open button is on the first screen.
 	return (
-		<article className='page enter gap-11 max-sm:gap-8'>
+		<article className='page enter gap-11 max-sm:gap-8 [@media(max-height:560px)]:gap-6'>
 			<nav aria-label={t.a_crumbs}>
 				<ol className='m-0 flex list-none flex-wrap gap-2 p-0 text-[13px] text-fg-3'>
 					<li>
@@ -64,7 +68,7 @@ function AppPage() {
 				<div className='flex min-w-0 flex-col gap-3.5'>
 					<p className='m-0 flex flex-wrap items-center gap-x-3 gap-y-2 text-[13px] text-fg-3 [&_.kind-tag]:self-center'>
 						<KindTag app={app} label={kindLabel} />
-						<Link to='/showcase' search={{ cat: group }} className='font-semibold text-blue-ink no-underline hover:underline'>
+						<Link to='/showcase' search={{ cat: group }} className='-my-2 py-2 font-semibold text-blue-ink no-underline hover:underline'>
 							{t[`grp_${group}`]}
 						</Link>
 						<span>
@@ -103,10 +107,11 @@ function AppPage() {
 						</h2>
 						<p className='m-0 text-[16.5px] leading-[1.8] text-fg-2'>{pick(app.about, lang)}</p>
 					</section>
+					{!app.image && breakdown}
 				</div>
 				<aside className='sticky top-24 flex flex-col gap-7 max-split:static'>
 					<AppFacts view={v} kindLabel={kindLabel} />
-					<ScoreBreakdown item={likeKey.app(app)} id='score' className='rounded-card border border-line-2 bg-panel px-5 py-[18px] max-sm:px-4' />
+					{app.image && breakdown}
 					<AppBadge app={app} />
 				</aside>
 			</div>
