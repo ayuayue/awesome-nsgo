@@ -57,7 +57,7 @@ function tokens(cmd: string): { w: string; c: string }[] {
 	});
 }
 
-// One word of a command, kept whole. The module path is wider than a phone, so on screens too narrow to hold it on one line it may break after any of its slashes, though never inside a part, where a break at the hyphen or between letters would read as a different command. `wrap` is the `max-[…]:inline` class that shows the break points below that width (each terminal has its own); a hidden <wbr> is no break point, while one that is shown breaks even inside nowrap text in Chrome.
+// One word of a command, kept whole. The module path is wider than a phone, so on screens too narrow to hold it on one line it may break after any of its slashes, though never inside a part, where a break at the hyphen or between letters would read as a different command. `wrap` is the class (an inline variant capped at a max width, not spelled out here, as Tailwind would read the spelling as a class) that shows the break points below that width (each terminal has its own); a hidden <wbr> is no break point, while one that is shown breaks even inside nowrap text in Chrome.
 function Word({ k, wrap }: { k: { w: string; c: string }; wrap: string }) {
 	if (k.c !== 'tk-p') return <span className={`${k.c} whitespace-nowrap`}>{k.w}</span>;
 	const parts = k.w.split('/');
