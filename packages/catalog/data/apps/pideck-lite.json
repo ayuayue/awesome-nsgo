@@ -1,0 +1,30 @@
+{
+	"$schema": "../schema/app.schema.json",
+	"slug": "pideck-lite",
+	"name": "PiDeck Lite",
+	"author": "ayuayue",
+	"kind": "go",
+	"platforms": ["mac", "win"],
+	"group": "dev",
+	"url": "https://github.com/ayuayue/PiDeck-Lite",
+	"repo": "ayuayue/PiDeck-Lite",
+	"summary": {
+		"en": "A native pi workbench: projects and sessions, streaming chat, a PTY terminal and a Git panel in one Go binary.",
+		"zh-CN": "原生窗口的 pi 工作台：项目与会话、流式对话、PTY 终端和 Git 面板都在一个 Go 二进制里。",
+		"zh-TW": "原生視窗的 pi 工作台：專案與會話、串流對話、PTY 終端機和 Git 面板都在一個 Go 二進位裡。",
+		"ja": "ネイティブウィンドウの pi ワークベンチ。プロジェクト、セッション、チャット、ターミナル、Git を 1 つの Go バイナリに。",
+		"ko": "네이티브 창의 pi 워크벤치. 프로젝트와 세션, 스트리밍 채팅, PTY 터미널, Git 패널을 하나의 Go 바이너리에 담았습니다."
+	},
+	"description": {
+		"en": "PiDeck Lite rebuilds PiDeck as a native NSGo app. It drives the local pi CLI over its RPC mode and shows its reasoning, answers and tool calls as they stream, beside a PTY terminal on Ghostty's engine and a Git panel for branches, staging, commits and history. Projects and sessions run on the local machine, WSL or SSH; there is no Electron and no browser engine, just one Go binary.",
+		"zh-CN": "用 NSGo 重做的 PiDeck：通过 RPC 模式驱动本机 pi，实时显示思考、正文和工具调用；旁边是基于 Ghostty 引擎的 PTY 终端，以及分支、暂存、提交与历史的 Git 面板。项目与会话可以跑在本机、WSL 或 SSH 上。没有 Electron，也没有浏览器内核，整个应用是一个 Go 二进制。",
+		"zh-TW": "用 NSGo 重做的 PiDeck：透過 RPC 模式驅動本機 pi，即時顯示思考、正文和工具呼叫；旁邊是以 Ghostty 引擎為基礎的 PTY 終端機，以及分支、暫存、提交與歷史的 Git 面板。專案與會話可以跑在本機、WSL 或 SSH 上。沒有 Electron，也沒有瀏覽器核心，整個應用程式是一個 Go 二進位。",
+		"ja": "NSGo で作り直した PiDeck。ローカルの pi CLI を RPC モードで動かし、思考、回答、ツール呼び出しをストリーミングで表示します。Ghostty エンジンの PTY ターミナルと、ブランチ、ステージング、コミット、履歴の Git パネルを備え、プロジェクトとセッションはローカル、WSL、SSH で動かせます。Electron もブラウザエンジンもなく、アプリ全体が 1 つの Go バイナリです。",
+		"ko": "NSGo로 다시 만든 PiDeck입니다. 로컬 pi CLI를 RPC 모드로 구동해 사고, 답변, 도구 호출을 실시간으로 보여 줍니다. Ghostty 엔진의 PTY 터미널과 브랜치, 스테이징, 커밋, 기록을 다루는 Git 패널이 함께 있으며, 프로젝트와 세션은 로컬, WSL, SSH에서 실행할 수 있습니다. Electron도 브라우저 엔진도 없이 앱 전체가 하나의 Go 바이너리입니다."
+	},
+	"screenshot": "pideck-lite.webp",
+	"icon": {
+		"file": "pideck-lite.webp"
+	},
+	"added": "2026-11-12T15:30:55Z"
+}
