@@ -1,0 +1,36 @@
+{
+	"$schema": "../schema/app.schema.json",
+	"slug": "hando",
+	"name": "Hando",
+	"author": "oneo-me",
+	"kind": "go",
+	"group": "dev",
+	"platforms": [
+		"mac",
+		"win",
+		"linux",
+		"ios",
+		"android"
+	],
+	"url": "https://oneo-me.github.io/nsgo-hando/",
+	"repo": "oneo-me/nsgo-hando",
+	"summary": {
+		"en": "Sends files, folders and messages to nearby devices over the LocalSend protocol, with no server or account.",
+		"zh-CN": "通过 LocalSend 协议向附近设备发送文件、文件夹和消息，无需服务器或账号。",
+		"zh-TW": "透過 LocalSend 協定向附近裝置傳送檔案、資料夾和訊息，不需伺服器或帳號。",
+		"ja": "LocalSend プロトコルで近くのデバイスにファイル、フォルダ、メッセージを送るアプリ。サーバーもアカウントも不要。",
+		"ko": "LocalSend 프로토콜로 주변 기기에 파일, 폴더, 메시지를 보내는 앱. 서버나 계정이 필요 없습니다."
+	},
+	"description": {
+		"en": "Finds devices on the local network and sends files, folders and text messages; incoming transfers wait for a review, or Quick Save accepts them from favorites. It speaks the LocalSend protocol over mutual TLS, so it works with the official LocalSend apps, without a server or an account. Written in Go with NSGo for macOS, Windows, Linux, iOS and Android, in English and Simplified Chinese.",
+		"zh-CN": "在局域网中发现设备，发送文件、文件夹和文字消息；收到的传输需确认后才接收，也可用 Quick Save 自动接收收藏设备发来的内容。它通过双向 TLS 使用 LocalSend 协议，能与官方 LocalSend 应用互传，不需要服务器或账号。用 NSGo 以 Go 编写，原生运行于 macOS、Windows、Linux、iOS 和 Android，界面支持英文和简体中文。",
+		"zh-TW": "在區域網路中尋找裝置，傳送檔案、資料夾和文字訊息；收到的傳輸需確認後才接收，也可用 Quick Save 自動接收最愛裝置傳來的內容。它透過雙向 TLS 使用 LocalSend 協定，能與官方 LocalSend 應用程式互傳，不需要伺服器或帳號。以 NSGo 用 Go 撰寫，原生執行於 macOS、Windows、Linux、iOS 和 Android，介面支援英文與簡體中文。",
+		"ja": "ローカルネットワーク上のデバイスを見つけ、ファイル、フォルダ、テキストメッセージを送ります。受信は確認ダイアログを経てから行い、お気に入りからの転送は Quick Save で自動的に受け取れます。相互 TLS で LocalSend プロトコルを話すため公式の LocalSend アプリともやり取りでき、サーバーもアカウントも要りません。NSGo を使って Go で書かれ、macOS、Windows、Linux、iOS、Android で動きます。UI は英語と簡体字中国語です。",
+		"ko": "로컬 네트워크에서 기기를 찾아 파일, 폴더, 텍스트 메시지를 보냅니다. 받는 전송은 확인 대화상자를 거치며, 즐겨찾기 기기의 전송은 Quick Save로 자동 수락할 수 있습니다. 상호 TLS로 LocalSend 프로토콜을 사용해 공식 LocalSend 앱과도 주고받을 수 있고, 서버나 계정이 필요 없습니다. NSGo로 Go에서 작성했으며 macOS, Windows, Linux, iOS, Android에서 실행되고, 인터페이스는 영어와 중국어 간체입니다."
+	},
+	"icon": {
+		"file": "hando.webp"
+	},
+	"screenshot": "hando.webp",
+	"added": "2026-11-12T02:27:21Z"
+}
