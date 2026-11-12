@@ -1,18 +1,19 @@
 {
 	"$schema": "./schema/scores.schema.json",
-	"asOf": "2026-11-11",
+	"asOf": "2026-11-12",
 	"entries": {
-		"ai:nsgo-agents-md": { "activeWeeks": 3, "license": "NOASSERTION", "likes": 0, "osi": false, "releaseDays": 0, "repo": "oneo-me/nsgo", "stars": 322, "weeks": 3 },
+		"ai:nsgo-agents-md": { "activeWeeks": 3, "license": "NOASSERTION", "likes": 0, "osi": false, "releaseDays": 0, "repo": "oneo-me/nsgo", "stars": 360, "weeks": 3 },
 		"ai:nsgo-motion-lab": { "activeWeeks": 1, "license": "MIT", "likes": 0, "osi": true, "releaseDays": 0, "repo": "HycJack/nsgo-motion-lab", "stars": 0, "weeks": 1 },
-		"app:exodrive": { "activeWeeks": 0, "license": "Apache-2.0", "likes": 0, "osi": true, "releaseDays": 1, "released": "2026-11-10", "repo": "Jungley8/exodrive", "stars": 0, "weeks": 0 },
+		"app:exodrive": { "activeWeeks": 0, "license": "Apache-2.0", "likes": 0, "osi": true, "releaseDays": 2, "released": "2026-11-12", "repo": "Jungley8/exodrive", "stars": 0, "weeks": 0 },
 		"app:flow-editor": { "activeWeeks": 0, "license": "MIT", "likes": 0, "osi": true, "releaseDays": 0, "repo": "oneo-me/nsgo-flow", "stars": 2, "weeks": 0 },
-		"app:nsgo-gallery": { "activeWeeks": 3, "license": "NOASSERTION", "likes": 0, "osi": false, "releaseDays": 0, "repo": "oneo-me/nsgo", "stars": 322, "weeks": 3 },
+		"app:hando": { "activeWeeks": 0, "license": "MIT", "likes": 0, "osi": true, "releaseDays": 1, "released": "2026-11-11", "repo": "oneo-me/nsgo-hando", "stars": 16, "weeks": 0 },
+		"app:nsgo-gallery": { "activeWeeks": 3, "license": "NOASSERTION", "likes": 0, "osi": false, "releaseDays": 0, "repo": "oneo-me/nsgo", "stars": 360, "weeks": 3 },
 		"app:nsgo-gallery-tsx": { "activeWeeks": 1, "license": "NOASSERTION", "likes": 0, "osi": false, "path": "examples/gallery-tsx", "releaseDays": 0, "repo": "oneo-me/nsgo", "weeks": 1 },
 		"app:nsgo-orbit": { "activeWeeks": 1, "license": "NOASSERTION", "likes": 0, "osi": false, "path": "examples/orbit", "releaseDays": 0, "repo": "oneo-me/nsgo", "weeks": 1 },
 		"app:ocr-manager": { "activeWeeks": 2, "license": "MIT", "likes": 0, "osi": true, "releaseDays": 0, "repo": "freewu/ocr-manager", "stars": 0, "weeks": 2 },
 		"app:tts-manager": { "activeWeeks": 1, "license": "Apache-2.0", "likes": 0, "osi": true, "releaseDays": 0, "repo": "freewu/tts-demo", "stars": 0, "weeks": 12 },
-		"template:oneo-me/nsgo": { "activeWeeks": 3, "license": "NOASSERTION", "likes": 0, "osi": false, "releaseDays": 0, "repo": "oneo-me/nsgo", "stars": 322, "weeks": 3 },
-		"ui:oneo-me/nsgo": { "activeWeeks": 3, "license": "NOASSERTION", "likes": 0, "osi": false, "releaseDays": 0, "repo": "oneo-me/nsgo", "stars": 322, "weeks": 3 },
+		"template:oneo-me/nsgo": { "activeWeeks": 3, "license": "NOASSERTION", "likes": 1, "osi": false, "releaseDays": 0, "repo": "oneo-me/nsgo", "stars": 360, "weeks": 3 },
+		"ui:oneo-me/nsgo": { "activeWeeks": 3, "license": "NOASSERTION", "likes": 0, "osi": false, "releaseDays": 0, "repo": "oneo-me/nsgo", "stars": 360, "weeks": 3 },
 		"ui:oneo-me/nsgo-icons-kubai": { "activeWeeks": 0, "license": "MIT", "likes": 0, "osi": true, "releaseDays": 0, "repo": "oneo-me/nsgo-icons-kubai", "stars": 2, "weeks": 0 }
 	}
 }
